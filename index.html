@@ -1,1 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Outreach System — n8n Workflow Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --surface: #16161f;
+    --border: rgba(255,255,255,0.08);
+    --border-bright: rgba(255,255,255,0.15);
+    --accent: #7c6af5;
+    --accent2: #f5826a;
+    --accent3: #4de8b4;
+    --accent4: #f5c842;
+    --text: #e8e8f0;
+    --text-muted: #6b6b82;
+    --text-dim: #3a3a50;
+    --purple: #7c6af5;
+    --coral: #f5826a;
+    --teal: #4de8b4;
+    --amber: #f5c842;
+    --red: #f5506a;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,245,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,245,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 160px 80px 100px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    border: 1px solid rgba(124,106,245,0.3);
+    background: rgba(124,106,245,0.06);
+    padding: 6px 14px;
+    border-radius: 4px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--coral) 60%, var(--amber) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    margin-top: 28px;
+    max-width: 600px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.8;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 56px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .stat {
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+  }
+
+  .stat-num {
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  /* SECTIONS */
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 48px;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-bright), transparent);
+    max-width: 1200px;
+    margin: 0 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* WORKFLOW DIAGRAM */
+  .workflow-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .workflow-phase {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .workflow-phase:hover {
+    border-color: var(--border-bright);
+  }
+
+  .phase-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px 20px;
+    border-right: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .phase-name {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .phase-count {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    opacity: 0.25;
+  }
+
+  .phase-nodes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 24px;
+    flex-wrap: wrap;
+  }
+
+  .node-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: default;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .node-chip:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--border-bright);
+    transform: translateY(-1px);
+  }
+
+  .node-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .node-name {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .node-type-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .arrow-between {
+    color: var(--text-dim);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* COLOR CLASSES */
+  .c-purple .node-dot { background: var(--purple); }
+  .c-purple .node-name { color: #a89cf8; }
+  .c-teal .node-dot { background: var(--teal); }
+  .c-teal .node-name { color: #7df0c8; }
+  .c-coral .node-dot { background: var(--coral); }
+  .c-coral .node-name { color: #f8a08c; }
+  .c-amber .node-dot { background: var(--amber); }
+  .c-amber .node-name { color: #f8d878; }
+  .c-gray .node-dot { background: #555568; }
+  .c-gray .node-name { color: var(--text-muted); }
+
+  .phase-label.p-purple { border-right-color: rgba(124,106,245,0.2); }
+  .phase-label.p-purple .phase-name { color: var(--purple); }
+  .phase-label.p-teal { border-right-color: rgba(77,232,180,0.2); }
+  .phase-label.p-teal .phase-name { color: var(--teal); }
+  .phase-label.p-coral { border-right-color: rgba(245,130,106,0.2); }
+  .phase-label.p-coral .phase-name { color: var(--coral); }
+  .phase-label.p-amber { border-right-color: rgba(245,200,66,0.2); }
+  .phase-label.p-amber .phase-name { color: var(--amber); }
+  .phase-label.p-gray .phase-name { color: var(--text-muted); }
+
+  /* NODE BREAKDOWN TABLE */
+  .node-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .node-table thead tr {
+    border-bottom: 1px solid var(--border-bright);
+  }
+
+  .node-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 500;
+  }
+
+  .node-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .node-table tr:last-child td { border-bottom: none; }
+
+  .node-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .node-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .node-type-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  .tag-trigger { color: var(--purple); border-color: rgba(124,106,245,0.4); background: rgba(124,106,245,0.08); }
+  .tag-set { color: var(--teal); border-color: rgba(77,232,180,0.4); background: rgba(77,232,180,0.08); }
+  .tag-if { color: var(--amber); border-color: rgba(245,200,66,0.4); background: rgba(245,200,66,0.08); }
+  .tag-wait { color: var(--amber); border-color: rgba(245,200,66,0.4); background: rgba(245,200,66,0.08); }
+  .tag-openai { color: var(--coral); border-color: rgba(245,130,106,0.4); background: rgba(245,130,106,0.08); }
+  .tag-switch { color: #a0d4f5; border-color: rgba(160,212,245,0.4); background: rgba(160,212,245,0.08); }
+  .tag-http { color: var(--teal); border-color: rgba(77,232,180,0.4); background: rgba(77,232,180,0.08); }
+  .tag-code { color: #c8a8f8; border-color: rgba(200,168,248,0.4); background: rgba(200,168,248,0.08); }
+  .tag-cron { color: var(--accent4); border-color: rgba(245,200,66,0.4); background: rgba(245,200,66,0.08); }
+  .tag-error { color: var(--red); border-color: rgba(245,80,106,0.4); background: rgba(245,80,106,0.08); }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 24px 0;
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .code-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .code-lang {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  pre {
+    padding: 24px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #ccd6f6;
+  }
+
+  .kw { color: #c792ea; }
+  .str { color: #c3e88d; }
+  .num { color: #f78c6c; }
+  .cmt { color: #546e7a; }
+  .key { color: #82aaff; }
+  .val { color: #f78c6c; }
+
+  /* PROMPT CARDS */
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .prompt-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .prompt-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .prompt-node {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+    background: rgba(255,255,255,0.05);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .prompt-body {
+    padding: 24px 28px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: #b8c0d8;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* TIMING TABLE */
+  .timing-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .timing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .timing-card:hover { border-color: var(--border-bright); }
+
+  .timing-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .timing-card.step-0::before { background: var(--accent); }
+  .timing-card.step-1::before { background: var(--teal); }
+  .timing-card.step-2::before { background: var(--amber); }
+  .timing-card.step-3::before { background: var(--coral); }
+  .timing-card.step-re::before { background: #888; }
+
+  .timing-step {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+
+  .timing-wait {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .timing-unit {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .timing-reason {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .step-0 .timing-wait { color: var(--accent); }
+  .step-1 .timing-wait { color: var(--teal); }
+  .step-2 .timing-wait { color: var(--amber); }
+  .step-3 .timing-wait { color: var(--coral); }
+  .step-re .timing-wait { color: #888; }
+
+  /* ERROR HANDLING */
+  .error-flow {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .error-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .error-card-title {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .error-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .error-card li {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .error-card li::before {
+    content: '—';
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* LOGGING SECTION */
+  .log-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .log-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  .log-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .log-subtitle {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .log-sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .log-sheet-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .sheet-icon {
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.05);
+    flex-shrink: 0;
+  }
+
+  .sheet-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .sheet-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* SCALING SECTION */
+  .scaling-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .scale-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scale-card:hover {
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
+  }
+
+  .scale-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .scale-title {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .scale-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .scale-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-top: 14px;
+  }
+
+  /* JSON SCHEMA */
+  .json-field {
+    display: grid;
+    grid-template-columns: 180px 100px 1fr;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+
+  .json-field:last-child { border-bottom: none; }
+
+  .field-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #82aaff;
+  }
+
+  .field-type {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--coral);
+  }
+
+  .field-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+
+  /* SCROLL ANIMATIONS */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 40px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 80px auto 0;
+  }
+
+  .footer-text {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 120px 24px 60px; }
+    .hero-stats { flex-wrap: wrap; gap: 24px; }
+    .section { padding: 60px 24px; }
+    .divider { margin: 0 24px; }
+    .timing-grid { grid-template-columns: repeat(2, 1fr); }
+    .error-flow { grid-template-columns: 1fr; }
+    .log-grid { grid-template-columns: 1fr; }
+    .scaling-grid { grid-template-columns: 1fr; }
+    .workflow-phase { grid-template-columns: 100px 1fr; }
+    .json-field { grid-template-columns: 1fr; gap: 4px; }
+    footer { flex-direction: column; gap: 20px; text-align: center; padding: 40px 24px; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">// n8n · AI OUTREACH SYSTEM</div>
+  <ul class="nav-links">
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#nodes">Nodes</a></li>
+    <li><a href="#prompts">AI Prompts</a></li>
+    <li><a href="#timing">Scheduling</a></li>
+    <li><a href="#errors">Error Handling</a></li>
+    <li><a href="#logging">Logging</a></li>
+    <li><a href="#scaling">Scaling</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Production-Ready Blueprint</div>
+  <h1>AI-Powered Outreach<span class="line2">Workflow System</span></h1>
+  <p class="hero-desc">A complete n8n automation architecture for intelligent follow-up sequences, inbox management, and lead engagement — driven by machine learning and conversational AI.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">19</div>
+      <div class="stat-label">NODES TOTAL</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">7</div>
+      <div class="stat-label">PHASES</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">3×</div>
+      <div class="stat-label">RETRY LOGIC</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">14 day</div>
+      <div class="stat-label">RE-ENGAGE CYCLE</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WORKFLOW ARCHITECTURE -->
+<section class="section reveal" id="workflow">
+  <div class="section-header">
+    <span class="section-num">01 —</span>
+    <h2 class="section-title">Workflow Architecture</h2>
+  </div>
+
+  <div class="workflow-grid">
+    <!-- Phase 1 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-purple">
+        <div class="phase-name">INGEST</div>
+        <div class="phase-count">3</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-purple">
+          <div class="node-dot"></div>
+          <span class="node-name">01_INGEST_LeadSource</span>
+          <span class="node-type-badge">Webhook / Sheets</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-purple">
+          <div class="node-dot"></div>
+          <span class="node-name">02_INGEST_NormalizeLead</span>
+          <span class="node-type-badge">Set</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-teal">
+          <div class="node-dot"></div>
+          <span class="node-name">03_INGEST_Deduplicate</span>
+          <span class="node-type-badge">IF</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-purple">
+        <div class="phase-name">SEQUENCE</div>
+        <div class="phase-count">2</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-purple">
+          <div class="node-dot"></div>
+          <span class="node-name">04_SEQ_InitState</span>
+          <span class="node-type-badge">Set</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-amber">
+          <div class="node-dot"></div>
+          <span class="node-name">05_SEQ_SmartScheduler</span>
+          <span class="node-type-badge">Wait</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-coral">
+        <div class="phase-name">PERSONALIZE & SEND</div>
+        <div class="phase-count">3</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-coral">
+          <div class="node-dot"></div>
+          <span class="node-name">06_AI_Personalize</span>
+          <span class="node-type-badge">OpenAI</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-teal">
+          <div class="node-dot"></div>
+          <span class="node-name">07_SEND_ChannelRouter</span>
+          <span class="node-type-badge">Switch</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-teal">
+          <div class="node-dot"></div>
+          <span class="node-name">08_SEND_Message</span>
+          <span class="node-type-badge">Gmail / HTTP</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-amber">
+        <div class="phase-name">REPLY DETECTION</div>
+        <div class="phase-count">3</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-amber">
+          <div class="node-dot"></div>
+          <span class="node-name">09_WAIT_ReplyWindow</span>
+          <span class="node-type-badge">Wait</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-teal">
+          <div class="node-dot"></div>
+          <span class="node-name">10_IF_ReplyReceived</span>
+          <span class="node-type-badge">IF</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-coral">
+          <div class="node-dot"></div>
+          <span class="node-name">11_SEQ_IncrementStep</span>
+          <span class="node-type-badge">Set (no-reply path)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 5 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-coral">
+        <div class="phase-name">AI ANALYSIS</div>
+        <div class="phase-count">2</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-coral">
+          <div class="node-dot"></div>
+          <span class="node-name">12_AI_SentimentIntent</span>
+          <span class="node-type-badge">OpenAI</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-coral">
+          <div class="node-dot"></div>
+          <span class="node-name">13_PROC_ParseAIResponse</span>
+          <span class="node-type-badge">Code (JS)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 6 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-teal">
+        <div class="phase-name">BRANCH</div>
+        <div class="phase-count">3</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-teal">
+          <div class="node-dot"></div>
+          <span class="node-name">14_ROUTE_IntentRouter</span>
+          <span class="node-type-badge">Switch</span>
+        </div>
+        <span class="arrow-between">→</span>
+        <div class="node-chip c-teal">
+          <div class="node-dot"></div>
+          <span class="node-name">15_QUAL_MarkQualified</span>
+          <span class="node-type-badge">Set · Hot</span>
+        </div>
+        <span class="arrow-between">/</span>
+        <div class="node-chip c-gray">
+          <div class="node-dot"></div>
+          <span class="node-name">16_SEQ_StopSequence</span>
+          <span class="node-type-badge">Set · Rejected</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 7 -->
+    <div class="workflow-phase">
+      <div class="phase-label p-gray">
+        <div class="phase-name">LOG & RE-ENGAGE</div>
+        <div class="phase-count">3</div>
+      </div>
+      <div class="phase-nodes">
+        <div class="node-chip c-purple">
+          <div class="node-dot"></div>
+          <span class="node-name">17_LOG_WriteRecord</span>
+          <span class="node-type-badge">G-Sheets / Mongo</span>
+        </div>
+        <span class="arrow-between">+</span>
+        <div class="node-chip c-amber">
+          <div class="node-dot"></div>
+          <span class="node-name">18_ERR_RetryHandler</span>
+          <span class="node-type-badge">Error Trigger</span>
+        </div>
+        <span class="arrow-between">+</span>
+        <div class="node-chip c-coral">
+          <div class="node-dot"></div>
+          <span class="node-name">19_COLD_ReEngageTrigger</span>
+          <span class="node-type-badge">Cron</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- NODE BREAKDOWN -->
+<section class="section reveal" id="nodes">
+  <div class="section-header">
+    <span class="section-num">02 —</span>
+    <h2 class="section-title">Node-by-Node Breakdown</h2>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;">
+    <table class="node-table">
+      <thead>
+        <tr>
+          <th>NODE ID</th>
+          <th>TYPE</th>
+          <th>PURPOSE</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="node-id">01_INGEST_LeadSource</span></td>
+          <td><span class="node-type-tag tag-trigger">Webhook / Sheets Trigger</span></td>
+          <td>Polls Google Sheets every 5 min or receives CRM/API webhook POST. Each row = one lead. Entry point of the entire system.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">02_INGEST_NormalizeLead</span></td>
+          <td><span class="node-type-tag tag-set">Set</span></td>
+          <td>Maps raw source fields to a canonical lead schema regardless of origin. Ensures uniform structure for all downstream nodes.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">03_INGEST_Deduplicate</span></td>
+          <td><span class="node-type-tag tag-if">IF</span></td>
+          <td>Checks lead_id against Redis or Sheets lookup. Stops workflow if already processed. Prevents duplicate sequences.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">04_SEQ_InitState</span></td>
+          <td><span class="node-type-tag tag-set">Set</span></td>
+          <td>Bootstraps sequence state: step=0, tag="Cold", sequence_active=true, reply_received=false, last_contact=now.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">05_SEQ_SmartScheduler</span></td>
+          <td><span class="node-type-tag tag-wait">Wait</span></td>
+          <td>Adaptive delay computed from step number. Step 0→immediate, Step 1→2d, Step 2→4d, Step 3→7d. Implements exponential backoff.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">06_AI_Personalize</span></td>
+          <td><span class="node-type-tag tag-openai">OpenAI</span></td>
+          <td>Generates step-aware personalized outreach message using lead's industry, role, and pain point. Channel-aware length limits.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">07_SEND_ChannelRouter</span></td>
+          <td><span class="node-type-tag tag-switch">Switch</span></td>
+          <td>Routes on preferred_channel field: email→Gmail/SMTP, linkedin→HTTP Request, whatsapp→Twilio/WA Business API.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">08_SEND_Message</span></td>
+          <td><span class="node-type-tag tag-http">Gmail / HTTP</span></td>
+          <td>Sends the message. On success: updates last_contact, step++. On failure: triggers 18_ERR_RetryHandler.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">09_WAIT_ReplyWindow</span></td>
+          <td><span class="node-type-tag tag-wait">Wait</span></td>
+          <td>Pauses 48–72h. In production mode: uses "Wait for webhook" so execution resumes instantly when a reply webhook fires.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">10_IF_ReplyReceived</span></td>
+          <td><span class="node-type-tag tag-if">IF</span></td>
+          <td>Checks reply_text !== null && !== "". True→AI analysis. False→increment step and loop back to scheduler.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">11_SEQ_IncrementStep</span></td>
+          <td><span class="node-type-tag tag-set">Set</span></td>
+          <td>Increments step counter. If step >= max_steps (3): marks Cold, disables sequence. Else: re-queues to SmartScheduler.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">12_AI_SentimentIntent</span></td>
+          <td><span class="node-type-tag tag-openai">OpenAI</span></td>
+          <td>Classifies reply into: intent (interested/not/neutral/question/OOO), sentiment (positive/neutral/negative), suggested_action, and tag.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">13_PROC_ParseAIResponse</span></td>
+          <td><span class="node-type-tag tag-code">Code (JS)</span></td>
+          <td>Parses OpenAI JSON response, strips markdown fences, sets structured fields (intent, sentiment, tag, confidence) for routing.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">14_ROUTE_IntentRouter</span></td>
+          <td><span class="node-type-tag tag-switch">Switch</span></td>
+          <td>Routes on intent: "interested"→MarkQualified, "not_interested"→StopSequence, "neutral"/"question"→AI draft reply.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">15_QUAL_MarkQualified</span></td>
+          <td><span class="node-type-tag tag-set">Set</span></td>
+          <td>Sets tag="Hot", status="Qualified", qualified_at=now. Triggers Slack/email notification to sales rep.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">16_SEQ_StopSequence</span></td>
+          <td><span class="node-type-tag tag-set">Set</span></td>
+          <td>Sets sequence_active=false, status="Rejected", tag="Rejected". Prevents any further outreach to this lead.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">17_LOG_WriteRecord</span></td>
+          <td><span class="node-type-tag tag-http">G-Sheets / MongoDB</span></td>
+          <td>Upserts lead record in master sheet/collection on lead_id. Appends timestamped event to the events log.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">18_ERR_RetryHandler</span></td>
+          <td><span class="node-type-tag tag-error">Error Trigger + Wait</span></td>
+          <td>Catches failures from send/API nodes. Retries 3× with 5→15→45 min back-off. After 3 fails: writes to errors sheet + Slack alert.</td>
+        </tr>
+        <tr>
+          <td><span class="node-id">19_COLD_ReEngageTrigger</span></td>
+          <td><span class="node-type-tag tag-cron">Cron</span></td>
+          <td>Runs every 24h. Queries for tag="Cold" AND days_since_contact >= 14. Re-injects leads to sequence at step=0 with re-engagement flag.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LEAD JSON SCHEMA -->
+<section class="section reveal" id="schema">
+  <div class="section-header">
+    <span class="section-num">03 —</span>
+    <h2 class="section-title">Lead JSON Schema</h2>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Sample Lead Object</span>
+          <span class="code-lang">JSON</span>
+        </div>
+        <pre>{
+  <span class="key">"lead_id"</span>: <span class="str">"uuid-v4"</span>,
+  <span class="key">"first_name"</span>: <span class="str">"Priya"</span>,
+  <span class="key">"last_name"</span>: <span class="str">"Sharma"</span>,
+  <span class="key">"email"</span>: <span class="str">"priya@example.com"</span>,
+  <span class="key">"linkedin_url"</span>: <span class="str">"https://..."</span>,
+  <span class="key">"company"</span>: <span class="str">"Acme Corp"</span>,
+  <span class="key">"title"</span>: <span class="str">"Head of Operations"</span>,
+  <span class="key">"industry"</span>: <span class="str">"SaaS"</span>,
+  <span class="key">"pain_point"</span>: <span class="str">"manual reporting"</span>,
+  <span class="key">"preferred_channel"</span>: <span class="str">"email"</span>,
+  <span class="key">"source"</span>: <span class="str">"google_sheets"</span>,
+  <span class="key">"step"</span>: <span class="num">0</span>,
+  <span class="key">"tag"</span>: <span class="str">"Cold"</span>,
+  <span class="key">"status"</span>: <span class="str">"active"</span>,
+  <span class="key">"sequence_active"</span>: <span class="kw">true</span>,
+  <span class="key">"reply_received"</span>: <span class="kw">false</span>,
+  <span class="key">"reply_text"</span>: <span class="kw">null</span>,
+  <span class="key">"intent"</span>: <span class="kw">null</span>,
+  <span class="key">"sentiment"</span>: <span class="kw">null</span>,
+  <span class="key">"last_contact"</span>: <span class="kw">null</span>,
+  <span class="key">"qualified_at"</span>: <span class="kw">null</span>,
+  <span class="key">"created_at"</span>: <span class="str">"2026-03-22T10:00:00Z"</span>,
+  <span class="key">"notes"</span>: <span class="str">""</span>
+}</pre>
+      </div>
+    </div>
+    <div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px;">
+        <p style="font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 20px;">FIELD REFERENCE</p>
+        <div class="json-field">
+          <span class="field-name">"lead_id"</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">UUID v4 — deduplication key</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"preferred_channel"</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">email | linkedin | whatsapp</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"step"</span>
+          <span class="field-type">number</span>
+          <span class="field-desc">Current sequence step (0–3)</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"tag"</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">Hot | Warm | Cold | Rejected</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"sequence_active"</span>
+          <span class="field-type">boolean</span>
+          <span class="field-desc">Gate — false stops all sends</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"reply_text"</span>
+          <span class="field-type">string | null</span>
+          <span class="field-desc">Parsed inbound message body</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"intent"</span>
+          <span class="field-type">string | null</span>
+          <span class="field-desc">AI classification output</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"sentiment"</span>
+          <span class="field-type">string | null</span>
+          <span class="field-desc">positive | neutral | negative</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"pain_point"</span>
+          <span class="field-type">string</span>
+          <span class="field-desc">Injected into AI personalization</span>
+        </div>
+        <div class="json-field">
+          <span class="field-name">"qualified_at"</span>
+          <span class="field-type">timestamp | null</span>
+          <span class="field-desc">Set when tag becomes Hot</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- AI PROMPTS -->
+<section class="section reveal" id="prompts">
+  <div class="section-header">
+    <span class="section-num">04 —</span>
+    <h2 class="section-title">AI Prompts</h2>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-header">
+      <div class="prompt-icon" style="background: rgba(245,130,106,0.15);">✍️</div>
+      <div>
+        <div class="prompt-title">Prompt A — Message Personalization</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Generates step-aware, channel-appropriate outreach copy</div>
+      </div>
+      <div class="prompt-node">06_AI_Personalize</div>
+    </div>
+    <div class="prompt-body">You are an expert B2B outreach copywriter.
+
+Context:
+- Lead: {{ $json.first_name }} {{ $json.last_name }}, {{ $json.title }} at {{ $json.company }}
+- Industry: {{ $json.industry }}
+- Known pain point: {{ $json.pain_point }}
+- Sequence step: {{ $json.step }} (0 = first touch, 1 = follow-up, 2 = value add, 3 = breakup)
+- Channel: {{ $json.preferred_channel }}
+- Re-engagement: {{ $json.is_reengagement || false }}
+
+Write a short, human-sounding outreach message for step {{ $json.step }}.
+Rules:
+1. Step 0: introduce, reference their pain point, one soft CTA
+2. Step 1: add a relevant insight or stat from their industry
+3. Step 2: share a short case study or social proof
+4. Step 3: respectful "breakup" message, leave door open
+- Max 80 words for email. Max 40 words for LinkedIn/WhatsApp.
+- No em dashes. No filler phrases. Sound like a real person.
+- End with a single, low-friction question.
+
+Return only the message body. No subject line. No signature.</div>
+  </div>
+
+  <div class="prompt-card">
+    <div class="prompt-header">
+      <div class="prompt-icon" style="background: rgba(77,232,180,0.1);">🔍</div>
+      <div>
+        <div class="prompt-title">Prompt B — Sentiment & Intent Detection</div>
+        <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">Classifies inbound replies and returns structured JSON for routing</div>
+      </div>
+      <div class="prompt-node">12_AI_SentimentIntent</div>
+    </div>
+    <div class="prompt-body">You are an AI trained to analyze B2B sales replies.
+
+Incoming reply from {{ $json.first_name }} at {{ $json.company }}:
+"""
+{{ $json.reply_text }}
+"""
+
+Classify this reply and return ONLY valid JSON (no markdown, no explanation):
+
+{
+  "intent": "interested" | "not_interested" | "neutral" | "question" | "out_of_office",
+  "sentiment": "positive" | "neutral" | "negative",
+  "confidence": 0.0–1.0,
+  "tag": "Hot" | "Warm" | "Cold" | "Rejected",
+  "suggested_action": "schedule_call" | "send_followup" | "stop_sequence" | "answer_question" | "retry_later",
+  "summary": "one sentence describing the reply intent"
+}
+
+Rules:
+- "interested" → asks for demo, call, more info, or expresses positive curiosity
+- "not_interested" → says no, unsubscribe, stop, or remove me
+- "out_of_office" → OOO auto-response (set suggested_action: retry_later)
+- "question" → asks something without committing
+- Tag mapping: interested→Hot, question→Warm, neutral→Cold, not_interested→Rejected</div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-label">13_PROC_ParseAIResponse — Code Node (JavaScript)</span>
+      <span class="code-lang">JS</span>
+    </div>
+    <pre><span class="kw">const</span> raw = $json.choices[<span class="num">0</span>].message.content;
+<span class="kw">const</span> clean = raw.replace(<span class="str">/```json|```/g</span>, <span class="str">''</span>).trim();
+
+<span class="kw">let</span> ai;
+<span class="kw">try</span> {
+  ai = JSON.parse(clean);
+} <span class="kw">catch</span> (e) {
+  <span class="kw">throw new</span> Error(<span class="str">'AI response parse failed: '</span> + raw);
+}
+
+<span class="kw">return</span> {
+  intent:     ai.intent     || <span class="str">'neutral'</span>,
+  sentiment:  ai.sentiment  || <span class="str">'neutral'</span>,
+  tag:        ai.tag        || <span class="str">'Cold'</span>,
+  confidence: ai.confidence || <span class="num">0.5</span>,
+  suggested_action: ai.suggested_action,
+  ai_summary: ai.summary    || <span class="str">''</span>,
+};</pre>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TIMING -->
+<section class="section reveal" id="timing">
+  <div class="section-header">
+    <span class="section-num">05 —</span>
+    <h2 class="section-title">Follow-up Timing Logic</h2>
+  </div>
+
+  <div class="timing-grid">
+    <div class="timing-card step-0">
+      <div class="timing-step">STEP 0</div>
+      <div class="timing-wait">0</div>
+      <div class="timing-unit">MINUTES</div>
+      <div class="timing-reason">First touch — send immediately on entry</div>
+    </div>
+    <div class="timing-card step-1">
+      <div class="timing-step">STEP 1</div>
+      <div class="timing-wait">2</div>
+      <div class="timing-unit">DAYS</div>
+      <div class="timing-reason">Recency window — capitalize on freshness</div>
+    </div>
+    <div class="timing-card step-2">
+      <div class="timing-step">STEP 2</div>
+      <div class="timing-wait">4</div>
+      <div class="timing-unit">DAYS</div>
+      <div class="timing-reason">Mid-week sweet spot — value add message</div>
+    </div>
+    <div class="timing-card step-3">
+      <div class="timing-step">STEP 3</div>
+      <div class="timing-wait">7</div>
+      <div class="timing-unit">DAYS</div>
+      <div class="timing-reason">Final breakup message — close with grace</div>
+    </div>
+    <div class="timing-card step-re">
+      <div class="timing-step">RE-ENGAGE</div>
+      <div class="timing-wait">14</div>
+      <div class="timing-unit">DAYS</div>
+      <div class="timing-reason">Cold lead reset — new angle, fresh context</div>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top: 32px;">
+    <div class="code-header">
+      <span class="code-label">05_SEQ_SmartScheduler — Wait Node Expression</span>
+      <span class="code-lang">n8n Expression</span>
+    </div>
+    <pre><span class="cmt">// Dynamic wait in minutes based on current step</span>
+{{ $json.step === <span class="num">0</span> ? <span class="num">0</span> 
+ : $json.step === <span class="num">1</span> ? <span class="num">2880</span>   <span class="cmt">// 2 days</span>
+ : $json.step === <span class="num">2</span> ? <span class="num">5760</span>   <span class="cmt">// 4 days</span>
+ : <span class="num">10080</span> }}                         <span class="cmt">// 7 days (step 3+)</span>
+
+<span class="cmt">// Set Resume mode to "At specific time" for workflow persistence</span>
+<span class="cmt">// This survives n8n restarts unlike basic waits</span></pre>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ERROR HANDLING -->
+<section class="section reveal" id="errors">
+  <div class="section-header">
+    <span class="section-num">06 —</span>
+    <h2 class="section-title">Error Handling & Retry Strategy</h2>
+  </div>
+
+  <div class="error-flow">
+    <div class="error-card">
+      <div class="error-card-title">
+        <div class="error-icon" style="background: rgba(245,80,106,0.1); color: var(--red);">⚡</div>
+        Retry Logic
+      </div>
+      <ul>
+        <li>All HTTP / send nodes wrapped by Error Trigger node</li>
+        <li>3 retry attempts on failure</li>
+        <li>Exponential back-off: 5 min → 15 min → 45 min</li>
+        <li>Retry state stored in lead object to survive restarts</li>
+        <li>Idempotency check before every send attempt</li>
+      </ul>
+    </div>
+    <div class="error-card">
+      <div class="error-card-title">
+        <div class="error-icon" style="background: rgba(245,200,66,0.1); color: var(--amber);">🛡️</div>
+        Idempotency Guards
+      </div>
+      <ul>
+        <li>Check sequence_active = true before send</li>
+        <li>Check reply_received = false before send</li>
+        <li>Timestamp lock: skip if last_contact within 30 min</li>
+        <li>Dedup check on lead_id at workflow entry</li>
+        <li>Upsert (not insert) on all log writes</li>
+      </ul>
+    </div>
+    <div class="error-card">
+      <div class="error-card-title">
+        <div class="error-icon" style="background: rgba(77,232,180,0.1); color: var(--teal);">📋</div>
+        Dead-Letter Queue
+      </div>
+      <ul>
+        <li>After 3 failures: write to _errors sheet tab</li>
+        <li>Fields: lead_id, node_name, error_message, timestamp</li>
+        <li>Slack alert to #outreach-errors channel</li>
+        <li>Manual review queue for human intervention</li>
+        <li>Daily error digest via scheduled summary node</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top: 28px;">
+    <div class="code-header">
+      <span class="code-label">18_ERR_RetryHandler — Code Node</span>
+      <span class="code-lang">JS</span>
+    </div>
+    <pre><span class="kw">const</span> lead = $json.lead;
+<span class="kw">const</span> retries = lead.retry_count || <span class="num">0</span>;
+<span class="kw">const</span> maxRetries = <span class="num">3</span>;
+<span class="kw">const</span> delays = [<span class="num">5</span>, <span class="num">15</span>, <span class="num">45</span>]; <span class="cmt">// minutes</span>
+
+<span class="kw">if</span> (retries >= maxRetries) {
+  <span class="cmt">// Write to dead-letter sheet + alert Slack</span>
+  <span class="kw">return</span> { action: <span class="str">'dead_letter'</span>, lead_id: lead.lead_id };
+}
+
+<span class="kw">return</span> {
+  ...lead,
+  retry_count: retries + <span class="num">1</span>,
+  next_retry_delay: delays[retries],
+  action: <span class="str">'retry'</span>
+};</pre>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LOGGING -->
+<section class="section reveal" id="logging">
+  <div class="section-header">
+    <span class="section-num">07 —</span>
+    <h2 class="section-title">Database & Logging Strategy</h2>
+  </div>
+
+  <div class="log-grid">
+    <div class="log-card">
+      <div class="log-title">Google Sheets</div>
+      <div class="log-subtitle">RECOMMENDED FOR &lt; 10K LEADS</div>
+      <div class="log-sheet">
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--teal);">📊</div>
+          <div>
+            <div class="sheet-name">leads</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Master record — upserted on lead_id</div>
+          </div>
+        </div>
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--purple);">📝</div>
+          <div>
+            <div class="sheet-name">events</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Append-only: lead_id, event, timestamp, meta</div>
+          </div>
+        </div>
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--red);">⚠️</div>
+          <div>
+            <div class="sheet-name">errors</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Dead-letter queue with error details</div>
+          </div>
+        </div>
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--amber);">🔥</div>
+          <div>
+            <div class="sheet-name">qualified_leads</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Hot leads for sales handoff</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-card">
+      <div class="log-title">MongoDB Atlas</div>
+      <div class="log-subtitle">RECOMMENDED FOR SCALE</div>
+      <div class="log-sheet">
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--teal);">🗄️</div>
+          <div>
+            <div class="sheet-name">leads collection</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Index on lead_id, tag, sequence_active</div>
+          </div>
+        </div>
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--purple);">📈</div>
+          <div>
+            <div class="sheet-name">events collection</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Time-series analytics and funnel tracking</div>
+          </div>
+        </div>
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--coral);">🔌</div>
+          <div>
+            <div class="sheet-name">Access method</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">n8n MongoDB node or Atlas Data API via HTTP</div>
+          </div>
+        </div>
+        <div class="log-sheet-row">
+          <div class="sheet-icon" style="color: var(--amber);">⚙️</div>
+          <div>
+            <div class="sheet-name">Write strategy</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">findOneAndUpdate with upsert: true on lead_id</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SCALING -->
+<section class="section reveal" id="scaling">
+  <div class="section-header">
+    <span class="section-num">08 —</span>
+    <h2 class="section-title">Scaling Improvements</h2>
+  </div>
+
+  <div class="scaling-grid">
+    <div class="scale-card">
+      <div class="scale-num">01 —</div>
+      <div class="scale-title">Redis Job Queue</div>
+      <div class="scale-desc">Add a Redis node as a job queue in front of the Smart Scheduler. Prevents thundering-herd when thousands of leads enter simultaneously. Enables rate-limited, ordered processing.</div>
+      <span class="scale-tag" style="background: rgba(124,106,245,0.1); color: var(--purple); border: 1px solid rgba(124,106,245,0.3);">Infrastructure</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">02 —</div>
+      <div class="scale-title">Sub-workflow Architecture</div>
+      <div class="scale-desc">Split into two n8n workflows: Outreach Master (ingest + init) and Sequence Worker (send + analyze). Call the worker via Execute Workflow node for parallel execution across hundreds of leads.</div>
+      <span class="scale-tag" style="background: rgba(77,232,180,0.1); color: var(--teal); border: 1px solid rgba(77,232,180,0.3);">Architecture</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">03 —</div>
+      <div class="scale-title">A/B Message Testing</div>
+      <div class="scale-desc">Add an IF node after personalization that routes 50/50 to two OpenAI prompts (Variant A vs B). Log the variant field in the events sheet to measure and optimize reply rates over time.</div>
+      <span class="scale-tag" style="background: rgba(245,200,66,0.1); color: var(--amber); border: 1px solid rgba(245,200,66,0.3);">Optimization</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">04 —</div>
+      <div class="scale-title">Webhook-based Reply Detection</div>
+      <div class="scale-desc">Replace polling with Nylas or Postmark inbound webhooks. Makes reply detection real-time (seconds vs hours). The Wait node switches to "Resume on webhook" mode for instant triggering.</div>
+      <span class="scale-tag" style="background: rgba(245,130,106,0.1); color: var(--coral); border: 1px solid rgba(245,130,106,0.3);">Real-time</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">05 —</div>
+      <div class="scale-title">Lead Scoring Engine</div>
+      <div class="scale-desc">Add a Code node after intent routing that calculates a numeric score based on reply_speed + positive_sentiment + step_number. Auto-escalate leads above threshold score to a human rep via Slack.</div>
+      <span class="scale-tag" style="background: rgba(124,106,245,0.1); color: var(--purple); border: 1px solid rgba(124,106,245,0.3);">Intelligence</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">06 —</div>
+      <div class="scale-title">Multi-language Support</div>
+      <div class="scale-desc">Add a language field to the lead schema and pass it to the personalization prompt. Claude or GPT-4 handles translation natively — one workflow architecture, global outreach coverage.</div>
+      <span class="scale-tag" style="background: rgba(77,232,180,0.1); color: var(--teal); border: 1px solid rgba(77,232,180,0.3);">Globalization</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">07 —</div>
+      <div class="scale-title">Rate Limiting</div>
+      <div class="scale-desc">Add a Wait node (1–2 seconds) between each send to avoid Gmail/LinkedIn daily limits. For Gmail, stay under 500 emails/day on standard accounts. Use a counter in Redis to track daily volume.</div>
+      <span class="scale-tag" style="background: rgba(245,200,66,0.1); color: var(--amber); border: 1px solid rgba(245,200,66,0.3);">Compliance</span>
+    </div>
+    <div class="scale-card">
+      <div class="scale-num">08 —</div>
+      <div class="scale-title">Analytics Dashboard</div>
+      <div class="scale-desc">Connect the events collection to Metabase or Retool for a live dashboard showing: reply rates per step, tag distribution, sequence completion %, and channel performance — all auto-updating.</div>
+      <span class="scale-tag" style="background: rgba(245,130,106,0.1); color: var(--coral); border: 1px solid rgba(245,130,106,0.3);">Observability</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-text">// AI OUTREACH SYSTEM · n8n WORKFLOW ARCHITECTURE · v1.0</div>
+  <div class="badge-row">
+    <span class="badge">19 NODES</span>
+    <span class="badge">OpenAI GPT-4</span>
+    <span class="badge">n8n</span>
+    <span class="badge">PRODUCTION-READY</span>
+  </div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

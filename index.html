@@ -548,6 +548,7 @@
   <div class="nav-logo">n8n · Gemini Outreach</div>
   <ul class="nav-links">
     <li><a href="#flow">Flow</a></li>
+    <li><a href="#canvas">Canvas</a></li>
     <li><a href="#nodes">Nodes</a></li>
     <li><a href="#credentials">Credentials</a></li>
     <li><a href="#summary">Summary</a></li>
@@ -625,6 +626,208 @@
       <div class="flow-node-box c-green">
         <div class="flow-node-num">08</div>
         <div class="flow-node-name">Sheets Update</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- N8N CANVAS MOCKUP -->
+<section class="flow-strip reveal" id="canvas" style="padding-bottom:48px;">
+  <div class="section-label">n8n CANVAS — CONNECTED NODES</div>
+  <div style="border-radius:12px; overflow:hidden; border:1px solid var(--border); box-shadow:0 4px 24px rgba(0,0,0,0.13);">
+
+    <!-- toolbar -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#252538;padding:10px 20px;border-bottom:1px solid #333350;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:0.7;flex-shrink:0">
+          <rect x="3" y="3" width="8" height="8" rx="2" fill="#9B6BFF"/>
+          <rect x="13" y="3" width="8" height="8" rx="2" fill="#4A90D9"/>
+          <rect x="3" y="13" width="8" height="8" rx="2" fill="#4CAF82"/>
+          <rect x="13" y="13" width="8" height="8" rx="2" fill="#F0A030"/>
+        </svg>
+        <span style="font-size:13px;font-weight:600;color:#c8c8e8;letter-spacing:0.02em;">Gemini Email Outreach Flow</span>
+        <span style="font-size:10px;background:#1e3a28;color:#4CAF82;border:1px solid #2d5a3d;padding:2px 10px;border-radius:10px;font-weight:600;">● Active</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <span style="font-size:11px;color:#8888aa;background:#1e1e32;border:1px solid #333350;border-radius:6px;padding:5px 12px;">Zoom 80%</span>
+        <span style="font-size:11px;color:#0a1f14;background:#4CAF82;border:1px solid #4CAF82;border-radius:6px;padding:5px 12px;font-weight:700;">▶ Execute</span>
+      </div>
+    </div>
+
+    <!-- canvas -->
+    <div style="background:#1a1a2e;background-image:radial-gradient(circle,#2a2a4a 1px,transparent 1px);background-size:24px 24px;overflow-x:auto;padding:40px 28px 48px;position:relative;">
+      <div style="width:1500px;height:420px;position:relative;">
+
+        <!-- SVG connections -->
+        <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;" viewBox="0 0 1500 420" preserveAspectRatio="none">
+          <defs>
+            <marker id="arr-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 2L8 5L1 8" fill="none" stroke="#4CAF82" stroke-width="2" stroke-linecap="round"/>
+            </marker>
+            <marker id="arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 2L8 5L1 8" fill="none" stroke="#4A90D9" stroke-width="2" stroke-linecap="round"/>
+            </marker>
+            <marker id="arr-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 2L8 5L1 8" fill="none" stroke="#F0A030" stroke-width="2" stroke-linecap="round"/>
+            </marker>
+            <marker id="arr-c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 2L8 5L1 8" fill="none" stroke="#FF6B47" stroke-width="2" stroke-linecap="round"/>
+            </marker>
+            <marker id="arr-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+              <path d="M1 2L8 5L1 8" fill="none" stroke="#CF6655" stroke-width="2" stroke-linecap="round"/>
+            </marker>
+          </defs>
+
+          <!-- N1→N2 green -->
+          <path d="M 198 178 C 218 178 218 178 238 178" fill="none" stroke="#4CAF82" stroke-width="2" opacity="0.9" marker-end="url(#arr-g)"/>
+          <!-- N2→N3 coral -->
+          <path d="M 398 178 C 418 178 418 178 438 178" fill="none" stroke="#FF6B47" stroke-width="2" opacity="0.9" marker-end="url(#arr-c)"/>
+          <!-- N3→N4 blue -->
+          <path d="M 598 178 C 618 178 618 178 638 178" fill="none" stroke="#4A90D9" stroke-width="2" opacity="0.9" marker-end="url(#arr-b)"/>
+          <!-- N4→N5 amber -->
+          <path d="M 798 178 C 818 178 818 178 838 178" fill="none" stroke="#F0A030" stroke-width="2" opacity="0.9" marker-end="url(#arr-o)"/>
+          <!-- RETRY LOOP dashed amber: N5 left → down → back to N3 left -->
+          <path d="M 838 195 C 838 300 838 320 718 320 C 598 320 518 320 438 320 C 438 320 438 300 438 195" fill="none" stroke="#D4A020" stroke-width="1.8" stroke-dasharray="7 4" opacity="0.75" marker-end="url(#arr-o)"/>
+          <!-- N5→N6 blue -->
+          <path d="M 998 178 C 1018 178 1018 178 1038 178" fill="none" stroke="#4A90D9" stroke-width="2" opacity="0.9" marker-end="url(#arr-b)"/>
+          <!-- N6→N7 coral -->
+          <path d="M 1198 178 C 1218 178 1218 178 1238 178" fill="none" stroke="#FF6B47" stroke-width="2" opacity="0.9" marker-end="url(#arr-c)"/>
+          <!-- N7 TRUE→N8 green: up branch -->
+          <path d="M 1398 158 C 1418 158 1418 108 1440 108" fill="none" stroke="#4CAF82" stroke-width="2" opacity="0.9" marker-end="url(#arr-g)"/>
+          <!-- N7 FALSE→STOP red: down branch -->
+          <path d="M 1398 198 C 1430 198 1440 250 1420 280" fill="none" stroke="#CF6655" stroke-width="1.8" stroke-dasharray="6 4" opacity="0.7" marker-end="url(#arr-r)"/>
+
+          <!-- Retry label -->
+          <rect x="556" y="308" width="164" height="18" rx="6" fill="#2a2a1e"/>
+          <text x="638" y="321" text-anchor="middle" font-size="9" font-weight="700" fill="#D4A020" font-family="monospace" letter-spacing="0.05em">↻ NO REPLY · RETRY MAX 3×</text>
+
+          <!-- TRUE label -->
+          <rect x="1406" y="88" width="112" height="17" rx="5" fill="#1e3a28"/>
+          <text x="1462" y="100" text-anchor="middle" font-size="9" font-weight="700" fill="#4CAF82" font-family="monospace">TRUE · INTERESTED</text>
+
+          <!-- FALSE label -->
+          <rect x="1406" y="212" width="98" height="17" rx="5" fill="#3a1e1e"/>
+          <text x="1455" y="224" text-anchor="middle" font-size="9" font-weight="700" fill="#CF6655" font-family="monospace">FALSE · STOP</text>
+        </svg>
+
+        <!-- NODE CARDS (inline HTML over SVG) -->
+
+        <!-- N1 -->
+        <div style="position:absolute;left:30px;top:145px;width:168px;background:#2d2d44;border-radius:8px;border:1.5px solid #4CAF82;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#1e3a28;color:#4CAF82;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">01 · TRIGGER</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(76,175,130,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#4CAF82" opacity="0.3"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4CAF82" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Sheets Trigger</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Trigger · Ingest</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4CAF82;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N2 -->
+        <div style="position:absolute;left:238px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#3a2010;color:#FF6B47;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">02 · AI WRITE</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #FF6B47;border-radius:6px 0 0 0;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,107,71,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3L14.5 9H21L16 13L18 19L12 15.5L6 19L8 13L3 9H9.5L12 3Z" fill="#FF6B47" opacity="0.9"/></svg>
+            </div>
+            <span style="font-size:10.5px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Gemini Chat Model</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">AI · Draft email</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #FF6B47;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N3 -->
+        <div style="position:absolute;left:438px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#101e3a;color:#4A90D9;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">03 · SEND</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #4A90D9;border-radius:6px 0 0 0;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(74,144,217,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#4A90D9" stroke-width="1.8" fill="none"/><path d="M22 6l-10 7L2 6" stroke="#4A90D9" stroke-width="1.8" fill="none"/></svg>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Gmail</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Action · Send email</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4A90D9;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N4 -->
+        <div style="position:absolute;left:638px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#2a200a;color:#F0A030;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">04 · WAIT</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #F0A030;border-radius:6px 0 0 0;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(240,160,48,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#F0A030" stroke-width="1.8" fill="none"/><path d="M12 7v5l3 3" stroke="#F0A030" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Wait</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Flow · Pause 48h</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #F0A030;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N5 -->
+        <div style="position:absolute;left:838px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#101e3a;color:#4A90D9;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">05 · DETECT REPLY</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #4A90D9;border-radius:6px 0 0 0;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(74,144,217,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#4A90D9" stroke-width="1.8" fill="none"/><path d="M22 6l-10 7L2 6" stroke="#4A90D9" stroke-width="1.8" fill="none"/><circle cx="18" cy="6" r="4" fill="#F0A030"/><path d="M17.2 6h1.6M18 5.2v1.6" stroke="#1a1a2e" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Gmail Trigger</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Trigger · Inbound reply</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4A90D9;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N6 -->
+        <div style="position:absolute;left:1038px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#3a2010;color:#FF6B47;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">06 · AI ANALYZE</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #FF6B47;border-radius:6px 0 0 0;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,107,71,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3L14.5 9H21L16 13L18 19L12 15.5L6 19L8 13L3 9H9.5L12 3Z" fill="#FF6B47" opacity="0.9"/></svg>
+            </div>
+            <span style="font-size:10.5px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Gemini Chat Model</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">AI · Classify reply</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #FF6B47;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N7 IF -->
+        <div style="position:absolute;left:1238px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#2a200a;color:#F0A030;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">07 · ROUTE</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #F0A030;border-radius:6px 0 0 0;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(240,160,48,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v4M12 9l-4 5M12 9l4 5" stroke="#F0A030" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="8" cy="18" r="2" fill="#F0A030" opacity="0.5"/><circle cx="16" cy="18" r="2" fill="#F0A030" opacity="0.5"/></svg>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">IF</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Logic · interested?</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4CAF82;background:#2d2d44;position:absolute;top:35%;right:-6px;transform:translateY(-50%);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #CF6655;background:#2d2d44;position:absolute;top:65%;right:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- N8 Sheets Update -->
+        <div style="position:absolute;left:1440px;top:76px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #4CAF82;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#1e3a28;color:#4CAF82;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">08 · LOG</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(76,175,130,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#4CAF82" opacity="0.25"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4CAF82" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="17" r="4" fill="#4CAF82"/><path d="M15.5 17l1 1.2 2.2-2.2" stroke="#0a1f14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Sheets</span>
+          </div>
+          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Action · Mark qualified</span></div>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4CAF82;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+        </div>
+
+        <!-- STOP node -->
+        <div style="position:absolute;left:1440px;top:270px;">
+          <div style="background:#3a1e1e;border:1.5px solid #5a2d2d;border-radius:8px;padding:10px 18px;font-size:10px;font-weight:700;color:#CF6655;letter-spacing:0.06em;text-transform:uppercase;font-family:monospace;">✕ Stop sequence</div>
+        </div>
+
       </div>
     </div>
   </div>

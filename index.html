@@ -1,1262 +1,708 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>n8n Outreach Flow — Node Reference</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>n8n Cold Email Reply Automation</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --bg:        #f7f5f0;
-    --bg2:       #ffffff;
-    --bg3:       #f0ede6;
-    --border:    #e2ddd6;
-    --border2:   #ccc8c0;
-    --text:      #1a1814;
-    --text2:     #5a5650;
-    --text3:     #9a9690;
-    --accent:    #1a6b4a;
-    --accent2:   #d4622a;
-    --accent3:   #2a5fa5;
-    --amber:     #b07a18;
-    --tag-green-bg: #e8f5ee; --tag-green-tx: #1a6b4a; --tag-green-bd: #b8deca;
-    --tag-coral-bg: #fdf0ea; --tag-coral-tx: #c04820; --tag-coral-bd: #f0c4a8;
-    --tag-blue-bg:  #eaf0fb; --tag-blue-tx:  #2a5fa5; --tag-blue-bd:  #b8cef0;
-    --tag-amber-bg: #fdf5e4; --tag-amber-tx: #8a5e10; --tag-amber-bd: #e8d090;
-    --tag-gray-bg:  #f2f0ec; --tag-gray-tx:  #5a5650; --tag-gray-bd:  #ccc8c0;
-    --mono: 'DM Mono', monospace;
-    --display: 'Playfair Display', serif;
-    --body: 'Lato', sans-serif;
-    --radius: 10px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    --bg: #0b0e13;
+    --surface: #111620;
+    --surface2: #181e2b;
+    --border: #1f2d42;
+    --border2: #263549;
+    --accent: #ff6b35;
+    --accent2: #ff9f1c;
+    --blue: #3b82f6;
+    --teal: #14b8a6;
+    --purple: #8b5cf6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #475569;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
 
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--body);
+    font-family: var(--sans);
     font-size: 15px;
-    line-height: 1.7;
+    line-height: 1.6;
+    min-height: 100vh;
   }
 
-  /* subtle dot grid */
+  /* ── background grid ── */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: radial-gradient(circle, #ccc8c0 1px, transparent 1px);
-    background-size: 28px 28px;
-    opacity: 0.45;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.3;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* NAV */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(247,245,240,0.92);
-    backdrop-filter: blur(12px);
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ── header ── */
+  header {
+    padding: 56px 0 48px;
     border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 48px;
-    height: 56px;
+    margin-bottom: 56px;
   }
-
-  .nav-logo {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--accent);
-    letter-spacing: 0.06em;
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--accent);
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 20px;
   }
-
-  .nav-links {
-    display: flex;
-    gap: 28px;
-    list-style: none;
+  .tag::before { content: '▶'; font-size: 9px; }
+  h1 {
+    font-family: var(--mono); font-size: clamp(22px, 4vw, 38px);
+    font-weight: 700; letter-spacing: -.02em;
+    color: #fff; line-height: 1.15; margin-bottom: 14px;
   }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text2); font-size: 16px; font-weight: 300; max-width: 560px; }
 
-  .nav-links a {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text2);
-    text-decoration: none;
-    letter-spacing: 0.07em;
-    transition: color 0.2s;
+  /* ── section titles ── */
+  .sec-title {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .12em;
+    color: var(--text3); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 12px;
   }
-  .nav-links a:hover { color: var(--text); }
+  .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  /* HERO */
-  .hero {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 80px 48px 64px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    margin-bottom: 24px;
-  }
-
-  .hero-eyebrow::before {
-    content: '';
-    display: inline-block;
-    width: 20px;
-    height: 1px;
-    background: var(--accent);
-  }
-
-  .hero h1 {
-    font-family: var(--display);
-    font-size: clamp(36px, 5vw, 58px);
-    font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.01em;
-    color: var(--text);
-    margin-bottom: 20px;
-  }
-
-  .hero h1 em {
-    font-style: italic;
-    color: var(--accent);
-  }
-
-  .hero-desc {
-    max-width: 560px;
-    color: var(--text2);
-    font-size: 16px;
-    line-height: 1.75;
-    margin-bottom: 40px;
-  }
-
-  .hero-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .pill {
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 5px 14px;
-    border-radius: 20px;
-    border: 1px solid;
-    letter-spacing: 0.05em;
-  }
-
-  /* FLOW OVERVIEW */
-  .flow-strip {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 48px 48px 0;
-  }
-
-  .section-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    color: var(--text3);
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .flow-nodes {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .flow-node {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-
-  .flow-node-box {
-    width: 88px;
-    padding: 10px 8px;
-    border-radius: 8px;
-    border: 1px solid;
-    text-align: center;
-    cursor: default;
-    transition: transform 0.15s;
-  }
-
-  .flow-node-box:hover { transform: translateY(-2px); }
-
-  .flow-node-num {
-    font-family: var(--mono);
-    font-size: 9px;
-    margin-bottom: 4px;
-    opacity: 0.7;
-  }
-
-  .flow-node-name {
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 500;
-    line-height: 1.3;
-  }
-
-  .flow-arrow {
-    font-size: 14px;
-    color: var(--border2);
-    margin: 0 4px;
-    margin-bottom: 24px;
-    flex-shrink: 0;
-  }
-
-  /* MAIN CONTENT */
-  .main {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 48px 48px 80px;
-  }
-
-  /* NODE CARDS */
-  .node-card {
-    background: var(--bg2);
+  /* ── DIAGRAM ── */
+  .diagram-section { margin-bottom: 72px; }
+  .diagram-card {
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-    overflow: hidden;
-    transition: box-shadow 0.2s;
+    border-radius: 14px;
+    padding: 40px 24px;
+    overflow-x: auto;
   }
+  .diagram-card svg { display: block; margin: 0 auto; }
 
-  .node-card:hover {
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08), 0 8px 28px rgba(0,0,0,0.08);
+  /* ── NODE CARDS GRID ── */
+  .nodes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 20px; margin-bottom: 72px; }
+
+  .node-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
   }
+  .node-card:hover { border-color: var(--border2); transform: translateY(-2px); }
 
   .node-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 22px;
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 22px;
     border-bottom: 1px solid var(--border);
-    background: var(--bg3);
   }
-
-  .node-index {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text3);
-    min-width: 24px;
-  }
-
-  .node-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
+  .node-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
     flex-shrink: 0;
+  }
+  .node-meta { flex: 1; }
+  .node-name { font-family: var(--mono); font-size: 14px; font-weight: 600; color: #fff; }
+  .node-type { font-size: 12px; color: var(--text3); margin-top: 2px; }
+  .node-badge {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 4px; letter-spacing: .06em;
+  }
+
+  .node-body { padding: 20px 22px; }
+
+  .purpose {
+    font-size: 13px; color: var(--text2); margin-bottom: 18px;
+    padding-left: 12px; border-left: 2px solid var(--border2);
+    line-height: 1.7;
+  }
+
+  .params-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .params-table thead tr { border-bottom: 1px solid var(--border); }
+  .params-table th {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text3); padding: 8px 10px; text-align: left;
+  }
+  .params-table td { padding: 9px 10px; vertical-align: top; border-bottom: 1px solid var(--border); }
+  .params-table tr:last-child td { border-bottom: none; }
+  .params-table td:first-child { color: var(--text2); white-space: nowrap; width: 140px; }
+  .params-table td:last-child { color: #fff; }
+
+  .code-val {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 3px 7px; border-radius: 4px; display: inline-block;
+    word-break: break-all;
+  }
+  .prompt-block {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-left: 3px solid var(--purple);
+    padding: 14px; border-radius: 4px; line-height: 1.7;
+    color: #c4b5fd; white-space: pre-wrap; margin-top: 4px;
+    overflow-x: auto;
+  }
+
+  /* colour helpers */
+  .c-amber  { background: rgba(245,158,11,.15); color: var(--amber);  }
+  .c-teal   { background: rgba(20,184,166,.15);  color: var(--teal);   }
+  .c-gray   { background: rgba(100,116,139,.15); color: #94a3b8;       }
+  .c-coral  { background: rgba(239,68,68,.15);   color: #f87171;       }
+  .c-blue   { background: rgba(59,130,246,.15);  color: var(--blue);   }
+  .c-purple { background: rgba(139,92,246,.15);  color: #a78bfa;       }
+  .c-green  { background: rgba(34,197,94,.15);   color: var(--green);  }
+
+  /* ── SHEET STRUCTURE ── */
+  .sheet-section { margin-bottom: 72px; }
+  .sheet-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .sheet-header {
+    padding: 16px 22px; border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--teal);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sheet-header::before { content: '📊'; font-size: 15px; }
+  .col-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .col-table th {
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    background: var(--surface2); color: var(--text3);
+    padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .col-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  .col-table tr:last-child td { border-bottom: none; }
+  .col-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--teal); font-weight: 600; }
+  .col-table td:nth-child(2) { color: var(--amber); font-size: 12px; font-family: var(--mono); }
+  .col-table td:nth-child(3) { color: var(--text2); }
+  .col-table td:last-child { }
+
+  /* badges in table */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-family: var(--mono); font-size: 11px; font-weight: 600; }
+  .badge-r  { background: rgba(20,184,166,.15); color: var(--teal); }
+  .badge-rw { background: rgba(245,158,11,.15); color: var(--amber); }
+
+  /* ── SETUP CHECKLIST ── */
+  .checklist-section { margin-bottom: 72px; }
+  .checklist { display: grid; gap: 12px; }
+  .check-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .check-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border2);
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    color: var(--accent); display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .check-item h4 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .check-item p  { font-size: 13px; color: var(--text2); }
+  .check-item code { font-family: var(--mono); font-size: 12px; color: var(--accent2); background: var(--surface2); padding: 1px 5px; border-radius: 3px; }
+
+  /* ── FLOW LOGIC ── */
+  .flow-logic { margin-bottom: 72px; }
+  .logic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .logic-card {
+    border-radius: 10px; padding: 20px;
     border: 1px solid;
   }
+  .logic-yes { background: rgba(34,197,94,.07); border-color: rgba(34,197,94,.25); }
+  .logic-no  { background: rgba(100,116,139,.07); border-color: rgba(100,116,139,.25); }
+  .logic-card h4 { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .logic-yes h4 { color: var(--green); }
+  .logic-no  h4 { color: #64748b; }
+  .logic-card ul { list-style: none; display: grid; gap: 7px; }
+  .logic-card li { font-size: 13px; color: var(--text2); padding-left: 16px; position: relative; }
+  .logic-card li::before { content: '→'; position: absolute; left: 0; color: var(--text3); }
 
-  .node-title-group { flex: 1; }
-
-  .node-title {
-    font-family: var(--display);
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.2;
-  }
-
-  .node-subtitle {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text3);
-    letter-spacing: 0.06em;
-    margin-top: 2px;
-  }
-
-  .node-tag {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    border: 1px solid;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-  }
-
-  /* PARAMS TABLE */
-  .params-table {
-    width: 100%;
-  }
-
-  .param-section-head {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    color: var(--text3);
-    padding: 12px 22px 6px;
-    background: var(--bg3);
-    border-top: 1px solid var(--border);
-  }
-
-  .param-row {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 12px;
-    padding: 10px 22px;
-    border-bottom: 1px solid var(--bg3);
-    align-items: baseline;
-  }
-
-  .param-row:last-child { border-bottom: none; }
-
-  .param-key {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text2);
-    font-weight: 500;
-  }
-
-  .param-val {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.5;
-  }
-
-  code {
-    font-family: var(--mono);
-    font-size: 11px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 7px;
-    color: var(--accent2);
-  }
-
-  .tip-row {
-    display: flex;
-    gap: 12px;
-    padding: 12px 22px;
-    background: #fdf8f0;
-    border-top: 1px solid #f0d8a8;
-    align-items: flex-start;
-  }
-
-  .tip-icon {
-    font-size: 13px;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  .tip-text {
-    font-size: 13px;
-    color: var(--amber);
-    line-height: 1.5;
-  }
-
-  /* CREDENTIALS SECTION */
-  .creds-box {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    margin-top: 8px;
-  }
-
-  .creds-header {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg3);
-    font-family: var(--display);
-    font-size: 17px;
-    font-weight: 600;
-  }
-
-  .cred-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 22px;
-    border-bottom: 1px solid var(--bg3);
-  }
-
-  .cred-row:last-child { border-bottom: none; }
-
-  .cred-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .cred-name {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text);
-    flex: 1;
-  }
-
-  .cred-used {
-    font-size: 12px;
-    color: var(--text3);
-  }
-
-  /* FLOW SUMMARY TABLE */
-  .summary-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    background: var(--bg2);
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-  }
-
-  .summary-table thead tr {
-    background: var(--bg3);
-    border-bottom: 1px solid var(--border2);
-  }
-
-  .summary-table th {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: var(--text2);
-    text-align: left;
-    padding: 12px 18px;
-    font-weight: 500;
-  }
-
-  .summary-table td {
-    padding: 12px 18px;
-    border-bottom: 1px solid var(--bg3);
-    vertical-align: middle;
-  }
-
-  .summary-table tr:last-child td { border-bottom: none; }
-  .summary-table tr:hover td { background: var(--bg3); }
-
-  .node-num-cell {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text3);
-  }
-
-  /* COLORS */
-  .c-green { background: var(--tag-green-bg); color: var(--tag-green-tx); border-color: var(--tag-green-bd); }
-  .c-coral { background: var(--tag-coral-bg); color: var(--tag-coral-tx); border-color: var(--tag-coral-bd); }
-  .c-blue  { background: var(--tag-blue-bg);  color: var(--tag-blue-tx);  border-color: var(--tag-blue-bd); }
-  .c-amber { background: var(--tag-amber-bg); color: var(--tag-amber-tx); border-color: var(--tag-amber-bd); }
-  .c-gray  { background: var(--tag-gray-bg);  color: var(--tag-gray-tx);  border-color: var(--tag-gray-bd); }
-
-  .icon-green { background: var(--tag-green-bg); border-color: var(--tag-green-bd); }
-  .icon-coral { background: var(--tag-coral-bg); border-color: var(--tag-coral-bd); }
-  .icon-blue  { background: var(--tag-blue-bg);  border-color: var(--tag-blue-bd);  }
-  .icon-amber { background: var(--tag-amber-bg); border-color: var(--tag-amber-bd); }
-
-  /* REVEAL ANIMATION */
-  .reveal {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
-  }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
-
-  /* FOOTER */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--border);
-    padding: 28px 48px;
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .footer-txt {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text3);
-    letter-spacing: 0.06em;
-  }
-
-  .footer-badges {
-    display: flex;
-    gap: 8px;
-  }
-
-  .footer-badge {
-    font-family: var(--mono);
-    font-size: 10px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--border2);
-    color: var(--text3);
-  }
-
-  @media (max-width: 768px) {
-    nav { padding: 0 20px; }
-    .nav-links { display: none; }
-    .hero, .flow-strip, .main { padding-left: 20px; padding-right: 20px; }
-    .param-row { grid-template-columns: 1fr; gap: 4px; }
-    footer { flex-direction: column; gap: 16px; padding: 24px 20px; }
+  @media (max-width: 640px) {
+    .nodes-grid { grid-template-columns: 1fr; }
+    .logic-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">n8n · Gemini Outreach</div>
-  <ul class="nav-links">
-    <li><a href="#flow">Flow</a></li>
-    <li><a href="#canvas">Canvas</a></li>
-    <li><a href="#nodes">Nodes</a></li>
-    <li><a href="#credentials">Credentials</a></li>
-    <li><a href="#summary">Summary</a></li>
-  </ul>
-</nav>
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="tag">n8n Automation Blueprint</div>
+    <h1>Cold Email<br/><span>Reply Automation</span></h1>
+    <p class="subtitle">Complete node-by-node documentation — every parameter, connection, and configuration needed to build this workflow from scratch.</p>
+  </header>
 
-<!-- HERO -->
-<section class="hero reveal">
-  <div class="hero-eyebrow">Minimal · 8 nodes · Light mode</div>
-  <h1>n8n Outreach Flow<br><em>with Google Gemini</em></h1>
-  <p class="hero-desc">A minimal, production-ready n8n workflow for AI-powered email outreach. Reads leads from Google Sheets, writes personalized emails with Gemini Flash, sends via Gmail, and classifies replies — all in 8 nodes.</p>
-  <div class="hero-pills">
-    <span class="pill c-green">Google Sheets</span>
-    <span class="pill c-coral">Gemini 1.5 Flash</span>
-    <span class="pill c-blue">Gmail</span>
-    <span class="pill c-amber">Wait · IF</span>
-    <span class="pill c-gray">Zero OpenAI cost</span>
+  <!-- ══════════════════════════════════════
+       SECTION 1 — WORKFLOW DIAGRAM
+  ══════════════════════════════════════ -->
+  <div class="diagram-section">
+    <div class="sec-title">01 — Workflow Diagram</div>
+    <div class="diagram-card">
+      <svg width="100%" viewBox="0 0 720 900" xmlns="http://www.w3.org/2000/svg" style="max-width:720px;">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- connector lines -->
+        <!-- 1→2 -->
+        <line x1="360" y1="90" x2="360" y2="135" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 2→3 -->
+        <line x1="360" y1="207" x2="360" y2="252" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 3→4 -->
+        <line x1="360" y1="324" x2="360" y2="369" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 4→5 -->
+        <line x1="360" y1="441" x2="360" y2="486" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 5→6 YES -->
+        <line x1="360" y1="558" x2="360" y2="607" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- YES label -->
+        <text x="372" y="588" fill="#22c55e" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700">YES</text>
+        <!-- 5 NO skip -->
+        <path d="M490 522 L600 522 L600 660 L502 660" fill="none" stroke="#475569" stroke-width="1.2" stroke-dasharray="6 4" marker-end="url(#arr)"/>
+        <text x="530" y="514" fill="#475569" font-family="'JetBrains Mono',monospace" font-size="11">NO (skip)</text>
+        <!-- 6→7 -->
+        <line x1="360" y1="679" x2="360" y2="724" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+        <!-- 7→8 -->
+        <line x1="360" y1="796" x2="360" y2="841" stroke="#475569" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- NODE 1 – Cron Trigger -->
+        <rect x="180" y="28" width="360" height="62" rx="10" fill="rgba(245,158,11,.12)" stroke="#f59e0b" stroke-width="1"/>
+        <rect x="180" y="28" width="5" height="62" rx="2" fill="#f59e0b"/>
+        <text x="208" y="54" fill="#fcd34d" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">1 · Cron Trigger</text>
+        <text x="208" y="74" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">n8n-nodes-base.scheduleTrigger · every 30 min</text>
+
+        <!-- NODE 2 – Google Sheets Read -->
+        <rect x="160" y="135" width="400" height="72" rx="10" fill="rgba(20,184,166,.1)" stroke="#14b8a6" stroke-width="1"/>
+        <rect x="160" y="135" width="5" height="72" rx="2" fill="#14b8a6"/>
+        <text x="188" y="161" fill="#5eead4" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">2 · Google Sheets — Read</text>
+        <text x="188" y="181" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">Operation: Read Rows</text>
+        <text x="188" y="198" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">Columns: Email · Company Name · Cold Mail Status</text>
+
+        <!-- NODE 3 – Split in Batches -->
+        <rect x="190" y="252" width="340" height="62" rx="10" fill="rgba(100,116,139,.12)" stroke="#475569" stroke-width="1"/>
+        <rect x="190" y="252" width="5" height="62" rx="2" fill="#64748b"/>
+        <text x="218" y="278" fill="#cbd5e1" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">3 · Split in Batches</text>
+        <text x="218" y="298" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">n8n-nodes-base.splitInBatches · Batch Size: 1</text>
+
+        <!-- NODE 4 – Gmail Search -->
+        <rect x="160" y="369" width="400" height="62" rx="10" fill="rgba(239,68,68,.1)" stroke="#f87171" stroke-width="1"/>
+        <rect x="160" y="369" width="5" height="62" rx="2" fill="#f87171"/>
+        <text x="188" y="395" fill="#fca5a5" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">4 · Gmail — Search Replies</text>
+        <text x="188" y="415" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">Query: from:&#123;&#123;$json["Email"]&#125;&#125; is:unread · Limit: 1</text>
+
+        <!-- NODE 5 – IF -->
+        <rect x="185" y="486" width="305" height="62" rx="10" fill="rgba(59,130,246,.1)" stroke="#60a5fa" stroke-width="1"/>
+        <rect x="185" y="486" width="5" height="62" rx="2" fill="#60a5fa"/>
+        <text x="213" y="512" fill="#93c5fd" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">5 · IF — Reply Mila?</text>
+        <text x="213" y="532" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">Condition: &#123;&#123;$json["snippet"]&#125;&#125; → exists</text>
+
+        <!-- NODE 6 – AI -->
+        <rect x="155" y="607" width="410" height="72" rx="10" fill="rgba(139,92,246,.1)" stroke="#a78bfa" stroke-width="1"/>
+        <rect x="155" y="607" width="5" height="72" rx="2" fill="#a78bfa"/>
+        <text x="183" y="633" fill="#c4b5fd" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">6 · AI — Analyze + Generate Reply</text>
+        <text x="183" y="653" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">OpenAI / Gemini · Classify intent + draft reply</text>
+        <text x="183" y="670" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">Output: Intent: &lt;type&gt;  Reply: &lt;text&gt;</text>
+
+        <!-- NODE 7 – Send Email -->
+        <rect x="165" y="724" width="390" height="62" rx="10" fill="rgba(239,68,68,.1)" stroke="#f87171" stroke-width="1"/>
+        <rect x="165" y="724" width="5" height="62" rx="2" fill="#f87171"/>
+        <text x="193" y="750" fill="#fca5a5" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">7 · Send Email (Gmail)</text>
+        <text x="193" y="770" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">To: &#123;&#123;Email&#125;&#125; · Body: AI-generated reply text</text>
+
+        <!-- NODE 8 – Sheets Update -->
+        <rect x="150" y="841" width="420" height="42" rx="10" fill="rgba(20,184,166,.1)" stroke="#14b8a6" stroke-width="1"/>
+        <rect x="150" y="841" width="5" height="42" rx="2" fill="#14b8a6"/>
+        <text x="178" y="858" fill="#5eead4" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">8 · Google Sheets — Update Status</text>
+        <text x="178" y="875" fill="#94a3b8" font-family="'DM Sans',sans-serif" font-size="12">Reply Status = "Replied" · Cold Mail Status = "Engaged"</text>
+      </svg>
+    </div>
   </div>
-</section>
 
-<!-- FLOW STRIP -->
-<section class="flow-strip reveal" id="flow">
-  <div class="section-label">PIPELINE OVERVIEW</div>
-  <div class="flow-nodes">
-    <div class="flow-node">
-      <div class="flow-node-box c-green">
-        <div class="flow-node-num">01</div>
-        <div class="flow-node-name">Sheets Trigger</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-coral">
-        <div class="flow-node-num">02</div>
-        <div class="flow-node-name">Gemini Write</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-blue">
-        <div class="flow-node-num">03</div>
-        <div class="flow-node-name">Gmail Send</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-amber">
-        <div class="flow-node-num">04</div>
-        <div class="flow-node-name">Wait 48h</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-blue">
-        <div class="flow-node-num">05</div>
-        <div class="flow-node-name">Gmail Trigger</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-coral">
-        <div class="flow-node-num">06</div>
-        <div class="flow-node-name">Gemini Analyze</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-amber">
-        <div class="flow-node-num">07</div>
-        <div class="flow-node-name">IF Intent</div>
-      </div>
-    </div>
-    <div class="flow-arrow">→</div>
-    <div class="flow-node">
-      <div class="flow-node-box c-green">
-        <div class="flow-node-num">08</div>
-        <div class="flow-node-name">Sheets Update</div>
-      </div>
-    </div>
-  </div>
-</section>
+  <!-- ══════════════════════════════════════
+       SECTION 2 — NODE DETAILS
+  ══════════════════════════════════════ -->
+  <div class="sec-title">02 — Node Details &amp; Parameters</div>
+  <div class="nodes-grid">
 
-<!-- N8N CANVAS MOCKUP -->
-<section class="flow-strip reveal" id="canvas" style="padding-bottom:48px;">
-  <div class="section-label">n8n CANVAS — CONNECTED NODES</div>
-  <div style="border-radius:12px; overflow:hidden; border:1px solid var(--border); box-shadow:0 4px 24px rgba(0,0,0,0.13);">
-
-    <!-- toolbar -->
-    <div style="display:flex;align-items:center;justify-content:space-between;background:#252538;padding:10px 20px;border-bottom:1px solid #333350;">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:0.7;flex-shrink:0">
-          <rect x="3" y="3" width="8" height="8" rx="2" fill="#9B6BFF"/>
-          <rect x="13" y="3" width="8" height="8" rx="2" fill="#4A90D9"/>
-          <rect x="3" y="13" width="8" height="8" rx="2" fill="#4CAF82"/>
-          <rect x="13" y="13" width="8" height="8" rx="2" fill="#F0A030"/>
-        </svg>
-        <span style="font-size:13px;font-weight:600;color:#c8c8e8;letter-spacing:0.02em;">Gemini Email Outreach Flow</span>
-        <span style="font-size:10px;background:#1e3a28;color:#4CAF82;border:1px solid #2d5a3d;padding:2px 10px;border-radius:10px;font-weight:600;">● Active</span>
-      </div>
-      <div style="display:flex;gap:8px;">
-        <span style="font-size:11px;color:#8888aa;background:#1e1e32;border:1px solid #333350;border-radius:6px;padding:5px 12px;">Zoom 80%</span>
-        <span style="font-size:11px;color:#0a1f14;background:#4CAF82;border:1px solid #4CAF82;border-radius:6px;padding:5px 12px;font-weight:700;">▶ Execute</span>
-      </div>
-    </div>
-
-    <!-- canvas -->
-    <div style="background:#1a1a2e;background-image:radial-gradient(circle,#2a2a4a 1px,transparent 1px);background-size:24px 24px;overflow-x:auto;padding:40px 28px 48px;position:relative;">
-      <div style="width:1500px;height:420px;position:relative;">
-
-        <!-- SVG connections -->
-        <svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;" viewBox="0 0 1500 420" preserveAspectRatio="none">
-          <defs>
-            <marker id="arr-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 2L8 5L1 8" fill="none" stroke="#4CAF82" stroke-width="2" stroke-linecap="round"/>
-            </marker>
-            <marker id="arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 2L8 5L1 8" fill="none" stroke="#4A90D9" stroke-width="2" stroke-linecap="round"/>
-            </marker>
-            <marker id="arr-o" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 2L8 5L1 8" fill="none" stroke="#F0A030" stroke-width="2" stroke-linecap="round"/>
-            </marker>
-            <marker id="arr-c" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 2L8 5L1 8" fill="none" stroke="#FF6B47" stroke-width="2" stroke-linecap="round"/>
-            </marker>
-            <marker id="arr-r" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
-              <path d="M1 2L8 5L1 8" fill="none" stroke="#CF6655" stroke-width="2" stroke-linecap="round"/>
-            </marker>
-          </defs>
-
-          <!-- N1→N2 green -->
-          <path d="M 198 178 C 218 178 218 178 238 178" fill="none" stroke="#4CAF82" stroke-width="2" opacity="0.9" marker-end="url(#arr-g)"/>
-          <!-- N2→N3 coral -->
-          <path d="M 398 178 C 418 178 418 178 438 178" fill="none" stroke="#FF6B47" stroke-width="2" opacity="0.9" marker-end="url(#arr-c)"/>
-          <!-- N3→N4 blue -->
-          <path d="M 598 178 C 618 178 618 178 638 178" fill="none" stroke="#4A90D9" stroke-width="2" opacity="0.9" marker-end="url(#arr-b)"/>
-          <!-- N4→N5 amber -->
-          <path d="M 798 178 C 818 178 818 178 838 178" fill="none" stroke="#F0A030" stroke-width="2" opacity="0.9" marker-end="url(#arr-o)"/>
-          <!-- RETRY LOOP dashed amber: N5 left → down → back to N3 left -->
-          <path d="M 838 195 C 838 300 838 320 718 320 C 598 320 518 320 438 320 C 438 320 438 300 438 195" fill="none" stroke="#D4A020" stroke-width="1.8" stroke-dasharray="7 4" opacity="0.75" marker-end="url(#arr-o)"/>
-          <!-- N5→N6 blue -->
-          <path d="M 998 178 C 1018 178 1018 178 1038 178" fill="none" stroke="#4A90D9" stroke-width="2" opacity="0.9" marker-end="url(#arr-b)"/>
-          <!-- N6→N7 coral -->
-          <path d="M 1198 178 C 1218 178 1218 178 1238 178" fill="none" stroke="#FF6B47" stroke-width="2" opacity="0.9" marker-end="url(#arr-c)"/>
-          <!-- N7 TRUE→N8 green: up branch -->
-          <path d="M 1398 158 C 1418 158 1418 108 1440 108" fill="none" stroke="#4CAF82" stroke-width="2" opacity="0.9" marker-end="url(#arr-g)"/>
-          <!-- N7 FALSE→STOP red: down branch -->
-          <path d="M 1398 198 C 1430 198 1440 250 1420 280" fill="none" stroke="#CF6655" stroke-width="1.8" stroke-dasharray="6 4" opacity="0.7" marker-end="url(#arr-r)"/>
-
-          <!-- Retry label -->
-          <rect x="556" y="308" width="164" height="18" rx="6" fill="#2a2a1e"/>
-          <text x="638" y="321" text-anchor="middle" font-size="9" font-weight="700" fill="#D4A020" font-family="monospace" letter-spacing="0.05em">↻ NO REPLY · RETRY MAX 3×</text>
-
-          <!-- TRUE label -->
-          <rect x="1406" y="88" width="112" height="17" rx="5" fill="#1e3a28"/>
-          <text x="1462" y="100" text-anchor="middle" font-size="9" font-weight="700" fill="#4CAF82" font-family="monospace">TRUE · INTERESTED</text>
-
-          <!-- FALSE label -->
-          <rect x="1406" y="212" width="98" height="17" rx="5" fill="#3a1e1e"/>
-          <text x="1455" y="224" text-anchor="middle" font-size="9" font-weight="700" fill="#CF6655" font-family="monospace">FALSE · STOP</text>
-        </svg>
-
-        <!-- NODE CARDS (inline HTML over SVG) -->
-
-        <!-- N1 -->
-        <div style="position:absolute;left:30px;top:145px;width:168px;background:#2d2d44;border-radius:8px;border:1.5px solid #4CAF82;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#1e3a28;color:#4CAF82;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">01 · TRIGGER</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(76,175,130,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#4CAF82" opacity="0.3"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4CAF82" stroke-width="2" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Sheets Trigger</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Trigger · Ingest</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4CAF82;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 1 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-amber">1</div>
+        <div class="node-meta">
+          <div class="node-name">Cron Trigger</div>
+          <div class="node-type">n8n-nodes-base.scheduleTrigger</div>
         </div>
+        <span class="node-badge c-amber">TRIGGER</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Starts the automation on a fixed schedule. Keeps polling so no reply is missed.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Trigger Type</td><td><span class="code-val">Interval</span></td></tr>
+            <tr><td>Field</td><td><span class="code-val">minutes</span></td></tr>
+            <tr><td>Every</td><td><span class="code-val">30</span> <small style="color:var(--text3)">(or 10)</small></td></tr>
+            <tr><td>Timezone</td><td><span class="code-val">Asia/Kolkata</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- N2 -->
-        <div style="position:absolute;left:238px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#3a2010;color:#FF6B47;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">02 · AI WRITE</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #FF6B47;border-radius:6px 0 0 0;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,107,71,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3L14.5 9H21L16 13L18 19L12 15.5L6 19L8 13L3 9H9.5L12 3Z" fill="#FF6B47" opacity="0.9"/></svg>
-            </div>
-            <span style="font-size:10.5px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Gemini Chat Model</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">AI · Draft email</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #FF6B47;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 2 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-teal">2</div>
+        <div class="node-meta">
+          <div class="node-name">Google Sheets — Read</div>
+          <div class="node-type">n8n-nodes-base.googleSheets</div>
         </div>
+        <span class="node-badge c-teal">SHEETS</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Reads all lead rows from your Google Sheet. Provides Email, Company Name, and Cold Mail Status for each lead.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Operation</td><td><span class="code-val">Read Rows</span></td></tr>
+            <tr><td>Document ID</td><td><span class="code-val">YOUR_GOOGLE_SHEET_ID</span></td></tr>
+            <tr><td>Sheet Name</td><td><span class="code-val">Sheet1</span></td></tr>
+            <tr><td>Mapping Mode</td><td><span class="code-val">Automatic</span></td></tr>
+            <tr><td>Credential</td><td><span class="code-val">Google Sheets OAuth2</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- N3 -->
-        <div style="position:absolute;left:438px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#101e3a;color:#4A90D9;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">03 · SEND</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #4A90D9;border-radius:6px 0 0 0;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(74,144,217,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#4A90D9" stroke-width="1.8" fill="none"/><path d="M22 6l-10 7L2 6" stroke="#4A90D9" stroke-width="1.8" fill="none"/></svg>
-            </div>
-            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Gmail</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Action · Send email</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4A90D9;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 3 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-gray">3</div>
+        <div class="node-meta">
+          <div class="node-name">Split in Batches</div>
+          <div class="node-type">n8n-nodes-base.splitInBatches</div>
         </div>
+        <span class="node-badge c-gray">UTILITY</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Processes each lead individually (batch size 1) to prevent rate-limit errors and ensure Gmail queries are isolated per lead.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Batch Size</td><td><span class="code-val">1</span></td></tr>
+            <tr><td>Options</td><td><span class="code-val">Reset (default off)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- N4 -->
-        <div style="position:absolute;left:638px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#2a200a;color:#F0A030;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">04 · WAIT</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #F0A030;border-radius:6px 0 0 0;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(240,160,48,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#F0A030" stroke-width="1.8" fill="none"/><path d="M12 7v5l3 3" stroke="#F0A030" stroke-width="1.8" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Wait</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Flow · Pause 48h</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #F0A030;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 4 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-coral">4</div>
+        <div class="node-meta">
+          <div class="node-name">Gmail — Search Replies</div>
+          <div class="node-type">n8n-nodes-base.gmail</div>
         </div>
+        <span class="node-badge c-coral">GMAIL</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Searches your inbox for an unread reply from each lead's email address. Returns the email snippet if found.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Operation</td><td><span class="code-val">Search</span></td></tr>
+            <tr><td>Search Query</td><td><span class="code-val">from:&#123;&#123;$json["Email"]&#125;&#125; is:unread</span></td></tr>
+            <tr><td>Return All</td><td><span class="code-val">false</span></td></tr>
+            <tr><td>Limit</td><td><span class="code-val">1</span></td></tr>
+            <tr><td>Credential</td><td><span class="code-val">Gmail OAuth2</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- N5 -->
-        <div style="position:absolute;left:838px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#101e3a;color:#4A90D9;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">05 · DETECT REPLY</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #4A90D9;border-radius:6px 0 0 0;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(74,144,217,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#4A90D9" stroke-width="1.8" fill="none"/><path d="M22 6l-10 7L2 6" stroke="#4A90D9" stroke-width="1.8" fill="none"/><circle cx="18" cy="6" r="4" fill="#F0A030"/><path d="M17.2 6h1.6M18 5.2v1.6" stroke="#1a1a2e" stroke-width="1.4" stroke-linecap="round"/></svg>
-            </div>
-            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Gmail Trigger</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Trigger · Inbound reply</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4A90D9;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 5 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-blue">5</div>
+        <div class="node-meta">
+          <div class="node-name">IF — Reply Mila?</div>
+          <div class="node-type">n8n-nodes-base.if</div>
         </div>
+        <span class="node-badge c-blue">LOGIC</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Routes the flow: if a reply snippet exists → YES path (AI + reply). If empty → NO path (skip this lead).</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Condition Type</td><td><span class="code-val">String</span></td></tr>
+            <tr><td>Left Value</td><td><span class="code-val">&#123;&#123;$json["snippet"]&#125;&#125;</span></td></tr>
+            <tr><td>Operation</td><td><span class="code-val">exists</span></td></tr>
+            <tr><td>Right Value</td><td><small style="color:var(--text3)">— leave empty —</small></td></tr>
+            <tr><td>Combinator</td><td><span class="code-val">AND</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- N6 -->
-        <div style="position:absolute;left:1038px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#3a2010;color:#FF6B47;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">06 · AI ANALYZE</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #FF6B47;border-radius:6px 0 0 0;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(255,107,71,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3L14.5 9H21L16 13L18 19L12 15.5L6 19L8 13L3 9H9.5L12 3Z" fill="#FF6B47" opacity="0.9"/></svg>
-            </div>
-            <span style="font-size:10.5px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Gemini Chat Model</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">AI · Classify reply</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #FF6B47;background:#2d2d44;position:absolute;top:50%;right:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 6 -->
+    <div class="node-card" style="grid-column: 1 / -1;">
+      <div class="node-header">
+        <div class="node-num c-purple">6</div>
+        <div class="node-meta">
+          <div class="node-name">AI — Analyze + Generate Reply</div>
+          <div class="node-type">@n8n/n8n-nodes-langchain.openAi  <small style="color:var(--text3)">or</small>  googleGemini</div>
         </div>
+        <span class="node-badge c-purple">AI</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Sends the email snippet to an LLM. Classifies intent (Interested / Not Interested / Need Info / Other) and drafts a short, human-like reply under 100 words.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Model</td><td><span class="code-val">gpt-4o-mini</span> or <span class="code-val">gemini-1.5-flash</span></td></tr>
+            <tr><td>Max Tokens</td><td><span class="code-val">400</span></td></tr>
+            <tr><td>Temperature</td><td><span class="code-val">0.7</span></td></tr>
+            <tr><td>Credential</td><td><span class="code-val">OpenAI API Key / Gemini API Key</span></td></tr>
+            <tr>
+              <td style="vertical-align:top; padding-top:12px;">Prompt</td>
+              <td>
+                <div class="prompt-block">You are an expert sales assistant.
 
-        <!-- N7 IF -->
-        <div style="position:absolute;left:1238px;top:145px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #3d3d5c;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#2a200a;color:#F0A030;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">07 · ROUTE</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;border-left:3px solid #F0A030;border-radius:6px 0 0 0;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(240,160,48,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 5v4M12 9l-4 5M12 9l4 5" stroke="#F0A030" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="8" cy="18" r="2" fill="#F0A030" opacity="0.5"/><circle cx="16" cy="18" r="2" fill="#F0A030" opacity="0.5"/></svg>
-            </div>
-            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">IF</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Logic · interested?</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #5a5a8a;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4CAF82;background:#2d2d44;position:absolute;top:35%;right:-6px;transform:translateY(-50%);"></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #CF6655;background:#2d2d44;position:absolute;top:65%;right:-6px;transform:translateY(-50%);"></div>
+Analyze the following email reply and classify it:
+
+Reply:
+{{ $json["snippet"] }}
+
+Tasks:
+1. Detect intent: Interested / Not Interested / Need Info / Other
+2. Generate a short professional reply
+
+Rules:
+- Keep reply under 100 words
+- Be polite and human-like
+- If interested → move forward (meeting/demo)
+- If not interested → polite closing
+- If need info → provide helpful answer
+
+Output format:
+Intent: &lt;intent&gt;
+Reply: &lt;email reply&gt;</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NODE 7 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-coral">7</div>
+        <div class="node-meta">
+          <div class="node-name">Send Email</div>
+          <div class="node-type">n8n-nodes-base.gmail</div>
         </div>
+        <span class="node-badge c-coral">GMAIL</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Sends the AI-generated reply back to the lead using Gmail. Pulls the email address from the original sheet row.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Operation</td><td><span class="code-val">Send</span></td></tr>
+            <tr><td>To</td><td><span class="code-val">&#123;&#123;$('Google Sheets - Read Leads').item.json["Email"]&#125;&#125;</span></td></tr>
+            <tr><td>Subject</td><td><span class="code-val">Re: Following up</span></td></tr>
+            <tr><td>Body</td><td><span class="code-val">&#123;&#123;$json["message"]["content"]&#125;&#125;</span></td></tr>
+            <tr><td>Body Type</td><td><span class="code-val">Text</span></td></tr>
+            <tr><td>Credential</td><td><span class="code-val">Gmail OAuth2</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- N8 Sheets Update -->
-        <div style="position:absolute;left:1440px;top:76px;width:160px;background:#2d2d44;border-radius:8px;border:1.5px solid #4CAF82;box-shadow:0 4px 20px rgba(0,0,0,0.4);">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#1e3a28;color:#4CAF82;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;font-family:monospace;letter-spacing:0.05em;">08 · LOG</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px;border-bottom:1px solid #3a3a58;">
-            <div style="width:28px;height:28px;border-radius:6px;background:rgba(76,175,130,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#4CAF82" opacity="0.25"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4CAF82" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="17" r="4" fill="#4CAF82"/><path d="M15.5 17l1 1.2 2.2-2.2" stroke="#0a1f14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <span style="font-size:11px;font-weight:600;color:#e8e8f8;line-height:1.3;">Google Sheets</span>
-          </div>
-          <div style="padding:7px 12px 9px;"><span style="font-size:9.5px;color:#7878a8;letter-spacing:0.04em;font-weight:500;text-transform:uppercase;">Action · Mark qualified</span></div>
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid #4CAF82;background:#2d2d44;position:absolute;top:50%;left:-6px;transform:translateY(-50%);"></div>
+    <!-- NODE 8 -->
+    <div class="node-card">
+      <div class="node-header">
+        <div class="node-num c-teal">8</div>
+        <div class="node-meta">
+          <div class="node-name">Google Sheets — Update</div>
+          <div class="node-type">n8n-nodes-base.googleSheets</div>
         </div>
+        <span class="node-badge c-teal">SHEETS</span>
+      </div>
+      <div class="node-body">
+        <div class="purpose">Marks the lead as handled so the next run won't re-process it. Updates two status columns in place.</div>
+        <table class="params-table">
+          <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Operation</td><td><span class="code-val">Update Row</span></td></tr>
+            <tr><td>Document ID</td><td><span class="code-val">YOUR_GOOGLE_SHEET_ID</span></td></tr>
+            <tr><td>Sheet Name</td><td><span class="code-val">Sheet1</span></td></tr>
+            <tr><td>Match Column</td><td><span class="code-val">Email</span></td></tr>
+            <tr><td>Reply Status</td><td><span class="code-val">"Replied"</span></td></tr>
+            <tr><td>Cold Mail Status</td><td><span class="code-val">"Engaged"</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <!-- STOP node -->
-        <div style="position:absolute;left:1440px;top:270px;">
-          <div style="background:#3a1e1e;border:1.5px solid #5a2d2d;border-radius:8px;padding:10px 18px;font-size:10px;font-weight:700;color:#CF6655;letter-spacing:0.06em;text-transform:uppercase;font-family:monospace;">✕ Stop sequence</div>
+  </div><!-- /nodes-grid -->
+
+  <!-- ══════════════════════════════════════
+       SECTION 3 — GOOGLE SHEET STRUCTURE
+  ══════════════════════════════════════ -->
+  <div class="sheet-section">
+    <div class="sec-title">03 — Google Sheet Column Structure</div>
+    <div class="sheet-card">
+      <div class="sheet-header">Leads Sheet — required columns</div>
+      <table class="col-table">
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Access</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Email</td>
+            <td>string</td>
+            <td>Lead's email address — used as Gmail search key</td>
+            <td><span class="badge badge-r">READ</span></td>
+          </tr>
+          <tr>
+            <td>Company Name</td>
+            <td>string</td>
+            <td>Lead's company (context for AI personalisation)</td>
+            <td><span class="badge badge-r">READ</span></td>
+          </tr>
+          <tr>
+            <td>Cold Mail Status</td>
+            <td>string</td>
+            <td>Current outreach stage · updated to <code style="font-family:var(--mono);font-size:12px;color:var(--accent2)">"Engaged"</code> after reply</td>
+            <td><span class="badge badge-rw">READ / WRITE</span></td>
+          </tr>
+          <tr>
+            <td>Reply Status</td>
+            <td>string</td>
+            <td>Set to <code style="font-family:var(--mono);font-size:12px;color:var(--accent2)">"Replied"</code> once the AI reply is sent</td>
+            <td><span class="badge badge-rw">WRITE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 4 — IF BRANCH LOGIC
+  ══════════════════════════════════════ -->
+  <div class="flow-logic">
+    <div class="sec-title">04 — IF Node Branch Logic</div>
+    <div class="logic-grid">
+      <div class="logic-card logic-yes">
+        <h4>✓ YES — snippet exists</h4>
+        <ul>
+          <li>Lead has replied to the cold email</li>
+          <li>Pass snippet to AI node for intent detection</li>
+          <li>AI drafts a contextual reply (&lt;100 words)</li>
+          <li>Gmail sends the reply</li>
+          <li>Sheet updated: Replied + Engaged</li>
+        </ul>
+      </div>
+      <div class="logic-card logic-no">
+        <h4>✗ NO — no snippet / no reply</h4>
+        <ul>
+          <li>Lead has not replied yet</li>
+          <li>Flow skips all remaining nodes</li>
+          <li>Sheet is not updated</li>
+          <li>Lead re-checked on next cron run</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SECTION 5 — SETUP CHECKLIST
+  ══════════════════════════════════════ -->
+  <div class="checklist-section">
+    <div class="sec-title">05 — Setup Checklist</div>
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check-num">1</div>
+        <div>
+          <h4>Create Google Sheet</h4>
+          <p>Add columns: <code>Email</code>, <code>Company Name</code>, <code>Cold Mail Status</code>, <code>Reply Status</code>. Fill in your leads. Copy the Sheet ID from the URL.</p>
         </div>
-
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- MAIN NODE CARDS -->
-<main class="main" id="nodes">
-  <div class="section-label" style="margin-bottom:28px;">NODE PARAMETERS</div>
-
-  <!-- NODE 1 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">01</span>
-      <div class="node-icon icon-green">📊</div>
-      <div class="node-title-group">
-        <div class="node-title">Google Sheets Trigger</div>
-        <div class="node-subtitle">TRIGGER · INGEST LEADS</div>
+      <div class="check-item">
+        <div class="check-num">2</div>
+        <div>
+          <h4>Connect Google Sheets credential</h4>
+          <p>In n8n → Credentials → New → Google Sheets OAuth2. Authorize with your Google account. Use this credential in nodes 2 and 8.</p>
+        </div>
       </div>
-      <span class="node-tag c-green">Trigger</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Credential</span>
-        <span class="param-val">Google Sheets OAuth2 API</span>
+      <div class="check-item">
+        <div class="check-num">3</div>
+        <div>
+          <h4>Connect Gmail credential</h4>
+          <p>In n8n → Credentials → New → Gmail OAuth2. Authorize with the same Google account that sent the cold emails. Use in nodes 4 and 7.</p>
+        </div>
       </div>
-      <div class="param-row">
-        <span class="param-key">Trigger On</span>
-        <span class="param-val"><code>Row Added</code></span>
+      <div class="check-item">
+        <div class="check-num">4</div>
+        <div>
+          <h4>Add AI / LLM credential</h4>
+          <p>For OpenAI: add <code>OpenAI API Key</code> credential. For Gemini: add <code>Google Gemini API Key</code>. Use in node 6.</p>
+        </div>
       </div>
-      <div class="param-row">
-        <span class="param-key">Document</span>
-        <span class="param-val">Select your Google Sheet by name or paste the Sheet ID</span>
+      <div class="check-item">
+        <div class="check-num">5</div>
+        <div>
+          <h4>Replace Sheet ID placeholders</h4>
+          <p>In nodes 2 and 8, replace <code>YOUR_GOOGLE_SHEET_ID</code> with the actual ID from your sheet URL: <code>docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</code></p>
+        </div>
       </div>
-      <div class="param-row">
-        <span class="param-key">Sheet Name</span>
-        <span class="param-val"><code>leads</code> — name of your tab</span>
+      <div class="check-item">
+        <div class="check-num">6</div>
+        <div>
+          <h4>Test with one lead</h4>
+          <p>Add a single test email row, manually trigger the workflow, and verify the Gmail search, AI response, and sheet update all work before enabling the cron.</p>
+        </div>
       </div>
-      <div class="param-row">
-        <span class="param-key">Poll Times → Every</span>
-        <span class="param-val"><code>5</code> Minutes</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- NODE 2 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">02</span>
-      <div class="node-icon icon-coral">✨</div>
-      <div class="node-title-group">
-        <div class="node-title">Google Gemini Chat Model</div>
-        <div class="node-subtitle">AI · WRITE EMAIL COPY</div>
-      </div>
-      <span class="node-tag c-coral">AI · Write</span>
-    </div>
-    <div class="param-section-head">HOW TO FIND IN n8n</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Add node</span>
-        <span class="param-val">Search <code>Basic LLM Chain</code> → inside it, click model selector → search <code>Google Gemini Chat Model</code></span>
-      </div>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Credential</span>
-        <span class="param-val">Google Gemini (PaLM) API — paste API key from aistudio.google.com</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Model</span>
-        <span class="param-val"><code>gemini-1.5-flash</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Prompt (User)</span>
-        <span class="param-val"><code>Write a short outreach email for {{ $json.first_name }} at {{ $json.company }}. Pain point: {{ $json.pain_point }}. Max 80 words. End with one question.</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Max Tokens</span>
-        <span class="param-val"><code>300</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Temperature</span>
-        <span class="param-val"><code>0.7</code> — creative but controlled</span>
+      <div class="check-item">
+        <div class="check-num">7</div>
+        <div>
+          <h4>Activate the workflow</h4>
+          <p>Toggle the workflow to <code>Active</code>. The cron will fire every 30 minutes automatically and process any new unread replies.</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- NODE 3 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">03</span>
-      <div class="node-icon icon-blue">📧</div>
-      <div class="node-title-group">
-        <div class="node-title">Gmail</div>
-        <div class="node-subtitle">ACTION · SEND EMAIL</div>
-      </div>
-      <span class="node-tag c-blue">Action · Send</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Credential</span>
-        <span class="param-val">Gmail OAuth2 API</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Resource</span>
-        <span class="param-val"><code>Message</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Operation</span>
-        <span class="param-val"><code>Send</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">To</span>
-        <span class="param-val"><code>{{ $json.email }}</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Subject</span>
-        <span class="param-val"><code>Quick question, {{ $json.first_name }}</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Message</span>
-        <span class="param-val"><code>{{ $node["Google Gemini Chat Model"].json.text }}</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Email Type</span>
-        <span class="param-val"><code>Text</code> (switch to HTML if formatting needed)</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- NODE 4 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">04</span>
-      <div class="node-icon icon-amber">⏱</div>
-      <div class="node-title-group">
-        <div class="node-title">Wait</div>
-        <div class="node-subtitle">FLOW · PAUSE EXECUTION</div>
-      </div>
-      <span class="node-tag c-amber">Flow · Wait</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Resume</span>
-        <span class="param-val"><code>After Time Interval</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Wait Amount</span>
-        <span class="param-val"><code>48</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Wait Unit</span>
-        <span class="param-val"><code>Hours</code></span>
-      </div>
-    </div>
-    <div class="tip-row">
-      <span class="tip-icon">💡</span>
-      <span class="tip-text">In production, switch Resume to <code>On Webhook Call</code> — the workflow resumes the instant a reply arrives instead of waiting the full 48 h.</span>
-    </div>
-  </div>
-
-  <!-- NODE 5 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">05</span>
-      <div class="node-icon icon-blue">📥</div>
-      <div class="node-title-group">
-        <div class="node-title">Gmail Trigger</div>
-        <div class="node-subtitle">TRIGGER · DETECT INBOUND REPLY</div>
-      </div>
-      <span class="node-tag c-blue">Trigger · Inbound</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Credential</span>
-        <span class="param-val">Gmail OAuth2 API (same as Node 03)</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Trigger On</span>
-        <span class="param-val"><code>New Email</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Label Names or IDs</span>
-        <span class="param-val"><code>INBOX</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Filters → To</span>
-        <span class="param-val">Your sending email address</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Poll Times → Every</span>
-        <span class="param-val"><code>5</code> Minutes</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Download Attachments</span>
-        <span class="param-val"><code>false</code></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- NODE 6 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">06</span>
-      <div class="node-icon icon-coral">🔍</div>
-      <div class="node-title-group">
-        <div class="node-title">Google Gemini Chat Model</div>
-        <div class="node-subtitle">AI · CLASSIFY REPLY INTENT</div>
-      </div>
-      <span class="node-tag c-coral">AI · Analyze</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Credential</span>
-        <span class="param-val">Same Google Gemini API key as Node 02</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Model</span>
-        <span class="param-val"><code>gemini-1.5-flash</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Prompt (User)</span>
-        <span class="param-val"><code>Classify this email reply. Return only one word: "interested", "not_interested", or "neutral". Reply: {{ $json.text }}</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Max Tokens</span>
-        <span class="param-val"><code>10</code> — one word answer only</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Temperature</span>
-        <span class="param-val"><code>0</code> — fully deterministic output</span>
-      </div>
-    </div>
-    <div class="tip-row">
-      <span class="tip-icon">💡</span>
-      <span class="tip-text">Same node as Node 02 — just a second instance with a different prompt. In n8n, drop another <code>Basic LLM Chain</code> and configure it separately.</span>
-    </div>
-  </div>
-
-  <!-- NODE 7 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">07</span>
-      <div class="node-icon icon-amber">⚡</div>
-      <div class="node-title-group">
-        <div class="node-title">IF</div>
-        <div class="node-subtitle">LOGIC · ROUTE BY INTENT</div>
-      </div>
-      <span class="node-tag c-amber">Logic · Route</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Condition Type</span>
-        <span class="param-val"><code>String</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Value 1</span>
-        <span class="param-val"><code>{{ $json.text.trim().toLowerCase() }}</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Operation</span>
-        <span class="param-val"><code>Equals</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Value 2</span>
-        <span class="param-val"><code>interested</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">True branch</span>
-        <span class="param-val">Goes to Node 08 — Google Sheets (log qualified)</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">False branch</span>
-        <span class="param-val">End node — sequence stops, lead not followed up</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- NODE 8 -->
-  <div class="node-card reveal">
-    <div class="node-header">
-      <span class="node-index">08</span>
-      <div class="node-icon icon-green">✅</div>
-      <div class="node-title-group">
-        <div class="node-title">Google Sheets</div>
-        <div class="node-subtitle">ACTION · LOG QUALIFIED LEAD</div>
-      </div>
-      <span class="node-tag c-green">Action · Update</span>
-    </div>
-    <div class="param-section-head">PARAMETERS</div>
-    <div class="params-table">
-      <div class="param-row">
-        <span class="param-key">Credential</span>
-        <span class="param-val">Google Sheets OAuth2 API (same as Node 01)</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Resource</span>
-        <span class="param-val"><code>Sheet Within Document</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Operation</span>
-        <span class="param-val"><code>Update Row</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Document</span>
-        <span class="param-val">Same sheet as Node 01</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Sheet Name</span>
-        <span class="param-val"><code>leads</code></span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Matching Column</span>
-        <span class="param-val"><code>email</code> — finds the correct row to update</span>
-      </div>
-      <div class="param-row">
-        <span class="param-key">Fields to Update</span>
-        <span class="param-val"><code>status</code> → <code>Qualified</code> &nbsp;·&nbsp; <code>tag</code> → <code>Hot</code></span>
-      </div>
-    </div>
-  </div>
-
-  <!-- CREDENTIALS -->
-  <div class="section-label" style="margin-top:48px; margin-bottom:16px;" id="credentials">CREDENTIALS NEEDED</div>
-  <div class="creds-box reveal">
-    <div class="creds-header">Set up once, used across all nodes</div>
-    <div class="cred-row">
-      <div class="cred-dot" style="background:#1a6b4a;"></div>
-      <div class="cred-name">Google Sheets OAuth2 API</div>
-      <div class="cred-used">Nodes 01 &amp; 08</div>
-    </div>
-    <div class="cred-row">
-      <div class="cred-dot" style="background:#2a5fa5;"></div>
-      <div class="cred-name">Gmail OAuth2 API</div>
-      <div class="cred-used">Nodes 03 &amp; 05</div>
-    </div>
-    <div class="cred-row">
-      <div class="cred-dot" style="background:#c04820;"></div>
-      <div class="cred-name">Google Gemini (PaLM) API</div>
-      <div class="cred-used">Nodes 02 &amp; 06 — get free key at aistudio.google.com</div>
-    </div>
-  </div>
-
-  <!-- SUMMARY TABLE -->
-  <div class="section-label" style="margin-top:48px; margin-bottom:16px;" id="summary">QUICK REFERENCE</div>
-  <table class="summary-table reveal">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>n8n Node Name</th>
-        <th>Role</th>
-        <th>Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="node-num-cell">01</td>
-        <td><code>Google Sheets Trigger</code></td>
-        <td>Reads new lead rows every 5 min</td>
-        <td><span class="node-tag c-green" style="font-size:10px;padding:2px 9px;">Trigger</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">02</td>
-        <td><code>Google Gemini Chat Model</code></td>
-        <td>Drafts personalized email copy</td>
-        <td><span class="node-tag c-coral" style="font-size:10px;padding:2px 9px;">AI</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">03</td>
-        <td><code>Gmail</code></td>
-        <td>Sends the outreach email</td>
-        <td><span class="node-tag c-blue" style="font-size:10px;padding:2px 9px;">Action</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">04</td>
-        <td><code>Wait</code></td>
-        <td>Pauses 48–72 h for reply window</td>
-        <td><span class="node-tag c-amber" style="font-size:10px;padding:2px 9px;">Flow</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">05</td>
-        <td><code>Gmail Trigger</code></td>
-        <td>Detects inbound reply in inbox</td>
-        <td><span class="node-tag c-blue" style="font-size:10px;padding:2px 9px;">Trigger</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">06</td>
-        <td><code>Google Gemini Chat Model</code></td>
-        <td>Classifies reply as interested / not</td>
-        <td><span class="node-tag c-coral" style="font-size:10px;padding:2px 9px;">AI</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">07</td>
-        <td><code>IF</code></td>
-        <td>Routes yes → log, no → stop</td>
-        <td><span class="node-tag c-amber" style="font-size:10px;padding:2px 9px;">Logic</span></td>
-      </tr>
-      <tr>
-        <td class="node-num-cell">08</td>
-        <td><code>Google Sheets</code></td>
-        <td>Marks lead Qualified + Hot in sheet</td>
-        <td><span class="node-tag c-green" style="font-size:10px;padding:2px 9px;">Action</span></td>
-      </tr>
-    </tbody>
-  </table>
-
-</main>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-txt">n8n · Google Gemini Outreach Flow · 8 nodes</div>
-  <div class="footer-badges">
-    <span class="footer-badge">Gemini 1.5 Flash</span>
-    <span class="footer-badge">Gmail</span>
-    <span class="footer-badge">Google Sheets</span>
-  </div>
-</footer>
-
-<script>
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.08 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-</script>
+</div><!-- /wrap -->
 </body>
 </html>
